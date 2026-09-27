@@ -1,0 +1,1016 @@
+/**
+ * ============================================================================
+ * AGENT-START 演示中枢 · 暗黑科幻 HUD 全息主题
+ * ============================================================================
+ * 加载顺序（见 main.ts）：库 dist/style.css → hud-force-dark.css（生成的
+ * 强制暗色层）→ 本文件。本文件负责：
+ *   1. --hud-* 调色板变量（生成层引用这些变量）
+ *   2. --as-* / --kh-* / --color-as-* 设计令牌覆写
+ *   3. 组件局部变量覆写（.ph / .th / .wf-node / .as-management）
+ *   4. as-* 基础组件强制覆写（库样式在 @layer 内，本文件无层即胜出）
+ *   5. 全局底色 / 滚动条 / 选区 / .hud-panel 全息面板工具类
+ *
+ * 色板规范：
+ *   主色 #00ccff · 亮青 #00e0ff · 深底 #040c1a · 面板 rgba(0,30,60,.45)
+ *   正文 #b8e8ff · 次要 #78a8d0 · 标题发光 #00e0ff · 告警 #ff4444
+ */
+
+/* ==========================================================================
+ * 1. HUD 调色板
+ * ========================================================================== */
+:root {
+  --hud-primary: #00ccff;
+  --hud-primary-bright: #00e0ff;
+  --hud-primary-deep: #00a3cc;
+
+  /* 表面：弹层/抽屉/向导等浮层用实色，避免透出下层内容 */
+  --hud-surface: #081e36;
+  --hud-surface-raised: #0a2540;
+  --hud-sunken: #04101e;
+  --hud-fill: rgba(0, 150, 220, 0.09);
+  --hud-fill-strong: rgba(0, 160, 230, 0.16);
+  --hud-accent-soft: rgba(0, 204, 255, 0.1);
+  --hud-warning-soft: rgba(250, 204, 21, 0.12);
+  --hud-danger-soft: rgba(255, 68, 68, 0.12);
+  --hud-success-soft: rgba(34, 197, 94, 0.12);
+
+  --hud-border: rgba(0, 204, 255, 0.22);
+  --hud-border-strong: rgba(0, 204, 255, 0.45);
+  --hud-border-faint: rgba(0, 204, 255, 0.1);
+
+  --hud-text-strong: #dcf4ff;
+  --hud-text: #b8e8ff;
+  --hud-text-muted: #78a8d0;
+  --hud-text-faint: #5580a6;
+
+  --hud-danger: #ff4444;
+  --hud-success: #22c55e;
+  --hud-warning: #facc15;
+
+  --hud-glow: 0 0 18px rgba(0, 204, 255, 0.14);
+  --hud-glow-strong: 0 0 26px rgba(0, 204, 255, 0.28);
+  --hud-panel-bg: rgba(0, 30, 60, 0.45);
+
+  --hud-font-mono:
+    'JetBrains Mono', 'Cascadia Code', ui-monospace, SFMono-Regular, Menlo,
+    Consolas, monospace;
+}
+
+/* ==========================================================================
+ * 2. 组件库设计令牌覆写（与库 :root 同特异性，靠加载顺序取胜）
+ * ========================================================================== */
+:root {
+  /* --- as-* 基座（--as-primary 等派生自 --color-as-*，改基即可） --- */
+  --color-as-primary: #00ccff;
+  --color-as-primary-hover: #35d9ff;
+  --color-as-primary-active: #00a8d6;
+  --color-as-success: #22c55e;
+  --color-as-warning: #facc15;
+  --color-as-danger: #ff4444;
+  --radius-as: 8px;
+  --shadow-as:
+    0 0 0 1px rgba(0, 204, 255, 0.08), 0 8px 28px rgba(0, 0, 0, 0.55);
+
+  --as-text: #b8e8ff;
+  --as-text-secondary: #78a8d0;
+  --as-text-placeholder: #5580a6;
+  --as-text-disabled: #3f6488;
+  --as-border: rgba(0, 204, 255, 0.28);
+  --as-border-secondary: rgba(0, 204, 255, 0.14);
+  --as-bg: rgba(4, 22, 42, 0.72);
+  --as-bg-layout: #040c1a;
+  /* 库样式引用但从未定义的令牌，这里补齐 */
+  --as-bg-elevated: #0a2540;
+  --as-fill-secondary: rgba(0, 150, 220, 0.1);
+  --as-fill-disabled: rgba(120, 168, 208, 0.06);
+  --as-shadow: var(--shadow-as);
+
+  /* --- kh-*（knowledge-hub），压过库的 [data-theme=dark] 灰蓝方案 --- */
+  --kh-color-primary: #00ccff;
+  --kh-color-primary-strong: #00a3cc;
+  --kh-color-primary-soft: rgba(0, 204, 255, 0.12);
+  --kh-color-primary-contrast: #04121f;
+  --kh-color-primary-outline: rgba(0, 204, 255, 0.35);
+  --kh-color-text-primary: #dcf4ff;
+  --kh-color-text-secondary: #b8e8ff;
+  --kh-color-text-tertiary: #78a8d0;
+  --kh-color-text-muted: #5580a6;
+  --kh-color-text-inverse: #04121f;
+  --kh-color-surface: #081e36;
+  --kh-color-surface-raised: #0a2540;
+  --kh-color-surface-sunken: #04101e;
+  --kh-color-surface-hover: rgba(0, 150, 220, 0.12);
+  --kh-color-border: rgba(0, 204, 255, 0.2);
+  --kh-color-border-hover: rgba(0, 204, 255, 0.45);
+  --kh-color-border-strong: rgba(0, 204, 255, 0.6);
+  --kh-color-divider: rgba(0, 204, 255, 0.1);
+  --kh-color-success: #22c55e;
+  --kh-color-success-soft: rgba(34, 197, 94, 0.14);
+  --kh-color-warning: #facc15;
+  --kh-color-warning-soft: rgba(250, 204, 21, 0.14);
+  --kh-color-danger: #ff4444;
+  --kh-color-danger-soft: rgba(255, 68, 68, 0.14);
+  --kh-color-info: #00ccff;
+  --kh-color-info-soft: rgba(0, 204, 255, 0.12);
+  --kh-input-border: rgba(0, 204, 255, 0.25);
+  --kh-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --kh-shadow-md: 0 3px 14px rgba(0, 0, 0, 0.55), 0 0 12px rgba(0, 204, 255, 0.06);
+  --kh-shadow-lg: 0 6px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 204, 255, 0.1);
+  --kh-shadow-drawer: -6px 0 30px rgba(0, 0, 0, 0.6), -1px 0 0 rgba(0, 204, 255, 0.2);
+  --kh-shadow-modal: 0 24px 70px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 204, 255, 0.12);
+}
+
+/* ==========================================================================
+ * 3. 组件局部变量覆写
+ * ========================================================================== */
+
+/* PluginHub / TriggerHub 根部的本地令牌（库 .dark 方案是中性 zinc，改海军蓝） */
+html.dark .ph,
+html.dark .th {
+  --panel: #081e36;
+  --soft: #04101e;
+  --line: rgba(0, 204, 255, 0.18);
+  --text: #b8e8ff;
+  --muted: #78a8d0;
+  --primary: #00ccff;
+}
+
+/* 工作流节点卡片 */
+html.dark .wf-node {
+  --wf-node-bg: rgba(6, 26, 48, 0.94);
+  --wf-node-border: rgba(0, 204, 255, 0.25);
+  --wf-node-shadow:
+    0 0 16px rgba(0, 204, 255, 0.1), 0 4px 14px rgba(0, 0, 0, 0.55);
+  --wf-node-shadow-hover:
+    0 0 26px rgba(0, 204, 255, 0.24), 0 6px 20px rgba(0, 0, 0, 0.6);
+}
+
+/* management 容器：库用 color-mix(…, white) 提亮 soft 面板，暗色下改为提暗 */
+html.dark .as-management {
+  --as-mgmt-panel: rgba(6, 26, 48, 0.6);
+  --as-mgmt-soft: rgba(0, 140, 210, 0.07);
+  --as-mgmt-line: rgba(0, 204, 255, 0.14);
+  --as-mgmt-text: #b8e8ff;
+  --as-mgmt-muted: #78a8d0;
+}
+
+/* 各大组件根容器：背景透明，让星点网格底透出来，卡片各自成面板 */
+html.dark[data-theme='dark'] .ph,
+html.dark[data-theme='dark'] .th,
+html.dark[data-theme='dark'] .as-management,
+html.dark[data-theme='dark'] .ch-root,
+html.dark[data-theme='dark'] .cet-root,
+html.dark[data-theme='dark'] .mr-root,
+html.dark[data-theme='dark'] .kh-app,
+html.dark[data-theme='dark'] .agent-apps-page,
+html.dark[data-theme='dark'] .dify-flow-designer {
+  background: transparent;
+}
+
+/* ==========================================================================
+ * 4. as-* 基础组件强制覆写（库样式在 @layer 内，无层规则天然胜出）
+ * ========================================================================== */
+
+/* --- 状态标签：绿=正常 / 黄=待处理 / 红=告警 --- */
+.as-tag {
+  color: var(--hud-text);
+  background: rgba(0, 150, 220, 0.08);
+  border-color: var(--hud-border);
+}
+.as-tag--green,
+.as-tag--success {
+  color: #4ade80;
+  background: rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.4);
+}
+.as-tag--red,
+.as-tag--error {
+  color: #ff6b6b;
+  background: rgba(255, 68, 68, 0.12);
+  border-color: rgba(255, 68, 68, 0.45);
+}
+.as-tag--blue,
+.as-tag--processing {
+  color: #35d9ff;
+  background: rgba(0, 204, 255, 0.12);
+  border-color: rgba(0, 204, 255, 0.4);
+}
+.as-tag--orange,
+.as-tag--warning {
+  color: #fbbf24;
+  background: rgba(250, 204, 21, 0.12);
+  border-color: rgba(250, 204, 21, 0.4);
+}
+
+/* --- 提示条：告警用红色发光边框 --- */
+.as-alert {
+  background: rgba(0, 204, 255, 0.07);
+  border: 1px solid rgba(0, 204, 255, 0.35);
+  color: var(--hud-text);
+}
+.as-alert--success {
+  background: rgba(34, 197, 94, 0.08);
+  border-color: rgba(34, 197, 94, 0.4);
+}
+.as-alert--warning {
+  background: rgba(250, 204, 21, 0.08);
+  border-color: rgba(250, 204, 21, 0.4);
+}
+.as-alert--error {
+  background: rgba(255, 68, 68, 0.08);
+  border-color: rgba(255, 68, 68, 0.55);
+  box-shadow: 0 0 14px rgba(255, 68, 68, 0.18);
+}
+
+/* --- 表格：表头半透深蓝 + 浅蓝细分割线 --- */
+.as-table th,
+.as-table thead td {
+  background: rgba(2, 16, 34, 0.85) !important;
+  color: #8fc7e8;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid rgba(0, 204, 255, 0.28) !important;
+}
+.as-table td {
+  border-bottom-color: rgba(0, 204, 255, 0.1);
+}
+.as-table tbody tr:hover td {
+  background: rgba(0, 150, 220, 0.07);
+}
+
+/* --- 开关 / 复选 --- */
+.as-switch {
+  background: rgba(120, 168, 208, 0.22);
+}
+.as-switch--checked {
+  background: var(--hud-primary);
+  box-shadow: 0 0 10px rgba(0, 204, 255, 0.5);
+}
+.as-check__box {
+  background: rgba(4, 20, 38, 0.9);
+  border-color: var(--hud-border-strong);
+}
+.as-radio__dot,
+.as-radio .as-radio__inner {
+  background: rgba(4, 20, 38, 0.9);
+}
+
+/* --- 全局提示消息（顶部浮层） --- */
+.as-message {
+  background: #0a2540;
+  border: 1px solid rgba(0, 204, 255, 0.3);
+  box-shadow:
+    0 0 20px rgba(0, 204, 255, 0.15), 0 8px 24px rgba(0, 0, 0, 0.55);
+  color: var(--hud-text);
+}
+
+/* --- 按钮：禁用态 & 主按钮发光 --- */
+.as-btn:disabled {
+  background: rgba(120, 168, 208, 0.06);
+  border-color: rgba(0, 204, 255, 0.12);
+  color: #3f6488;
+}
+.as-btn--primary:not(:disabled) {
+  box-shadow: 0 0 14px rgba(0, 204, 255, 0.35);
+}
+.as-btn--primary:not(:disabled):hover {
+  box-shadow: 0 0 20px rgba(0, 204, 255, 0.55);
+}
+.as-btn--danger:not(:disabled) {
+  box-shadow: 0 0 14px rgba(255, 68, 68, 0.3);
+}
+
+/* --- 弹层：下拉/气泡/模态/抽屉 --- */
+.as-dropdown__panel,
+.as-popover__panel,
+.as-select__dropdown,
+.as-cascader__dropdown {
+  background: var(--hud-surface-raised);
+  border: 1px solid var(--hud-border);
+  box-shadow:
+    0 0 24px rgba(0, 204, 255, 0.12), 0 12px 32px rgba(0, 0, 0, 0.6);
+}
+.as-modal__content,
+.as-drawer__body,
+.as-drawer__panel {
+  background: var(--hud-surface);
+  box-shadow: 0 0 40px rgba(0, 204, 255, 0.1), 0 24px 70px rgba(0, 0, 0, 0.7);
+}
+
+/* --- 输入控件聚焦：全息增亮 --- */
+.as-input:hover,
+.as-input-affix-wrapper:hover,
+.as-select__selector:hover,
+.as-textarea:hover {
+  border-color: rgba(0, 204, 255, 0.55);
+}
+.as-input:focus,
+.as-input-focused,
+.as-input-affix-wrapper:focus-within,
+.as-select--open .as-select__selector,
+.as-textarea:focus {
+  border-color: var(--hud-primary);
+  box-shadow: 0 0 0 2px rgba(0, 204, 255, 0.18), 0 0 14px rgba(0, 204, 255, 0.2);
+}
+
+/* --- 空状态：简约线框低透明度 --- */
+.as-empty {
+  color: var(--hud-text-faint);
+  opacity: 0.75;
+}
+
+/* --- Tabs：激活项淡蓝填充 + 高亮 --- */
+.as-tabs__tab:hover {
+  color: var(--hud-primary-bright);
+}
+.as-tabs__tab--active,
+.as-tabs__tab.as-tabs__tab--active:hover {
+  color: var(--hud-primary-bright);
+  text-shadow: 0 0 10px rgba(0, 224, 255, 0.45);
+}
+.as-tabs__ink-bar {
+  background: var(--hud-primary);
+  box-shadow: 0 0 10px rgba(0, 204, 255, 0.7);
+}
+.as-segmented {
+  background: rgba(0, 140, 210, 0.08);
+}
+.as-segmented__item--selected {
+  background: rgba(0, 204, 255, 0.16);
+  color: var(--hud-primary-bright);
+  box-shadow: 0 0 10px rgba(0, 204, 255, 0.2);
+}
+
+/* ==========================================================================
+ * 5. 全局基底
+ * ========================================================================== */
+html,
+body {
+  background: #040c1a;
+  color: var(--hud-text);
+  color-scheme: dark;
+}
+
+#app {
+  position: relative;
+  z-index: 1;
+}
+
+::selection {
+  background: rgba(0, 204, 255, 0.32);
+  color: #eaf7ff;
+}
+
+/* 细全息滚动条 */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 204, 255, 0.25) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(0, 204, 255, 0.22);
+  border-radius: 4px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 204, 255, 0.4);
+}
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* 路由切换过渡（App.vue 的 <Transition name="hud-fade">） */
+.hud-fade-enter-active,
+.hud-fade-leave-active {
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+}
+.hud-fade-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.hud-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+/* ==========================================================================
+ * 6. HUD 工具类（视图层复用）
+ * ========================================================================== */
+
+/* --------------------------------------------------------------------------
+ * 台阶造型面板（无填充，纯线框 + 转角渐变加粗）
+ * 结构：
+ *   - 主体：14px 45° 切角的台阶折线边框，其他边线 1px 最细
+ *   - 转角加粗（::before）：每条边靠近转角处 3 段叠加，越长越细、越短越粗
+ *     Layer 1: 24px × 2px（最长最细）
+ *     Layer 2: 15px × 3px（中等）
+ *     Layer 3: 7px × 4px（最短最粗）
+ *   - 边角光晕 + 上下居中光带（::after）
+ *   - 主光色 #0cf0ff，边框 0.55 / 加粗 0.8~0.95 / 主光带 0.75
+ * -------------------------------------------------------------------------- */
+.hud-panel {
+  position: relative;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  isolation: isolate;
+}
+
+/* 主边框（1px 细线 + 4 斜角）+ 转角三段加粗 */
+.hud-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    /* ===== 主边线：1px 细线 ===== */
+    /* 上边 */
+    linear-gradient(to right, rgba(12, 240, 255, 0.55), rgba(12, 240, 255, 0.55))
+      top / calc(100% - 28px) 1px no-repeat,
+    /* 下边 */
+    linear-gradient(to right, rgba(12, 240, 255, 0.55), rgba(12, 240, 255, 0.55))
+      bottom / calc(100% - 28px) 1px no-repeat,
+    /* 左边 */
+    linear-gradient(to bottom, rgba(12, 240, 255, 0.55), rgba(12, 240, 255, 0.55))
+      left / 1px calc(100% - 28px) no-repeat,
+    /* 右边 */
+    linear-gradient(to bottom, rgba(12, 240, 255, 0.55), rgba(12, 240, 255, 0.55))
+      right / 1px calc(100% - 28px) no-repeat,
+
+    /* ===== 4 个斜角：1px 细线 ===== */
+    linear-gradient(-45deg, transparent 46%, rgba(12, 240, 255, 0.55) 46% 54%, transparent 54%)
+      top left / 14px 14px no-repeat,
+    linear-gradient(45deg, transparent 46%, rgba(12, 240, 255, 0.55) 46% 54%, transparent 54%)
+      top right / 14px 14px no-repeat,
+    linear-gradient(45deg, transparent 46%, rgba(12, 240, 255, 0.55) 46% 54%, transparent 54%)
+      bottom left / 14px 14px no-repeat,
+    linear-gradient(-45deg, transparent 46%, rgba(12, 240, 255, 0.55) 46% 54%, transparent 54%)
+      bottom right / 14px 14px no-repeat,
+
+    /* ===== 左上角：上边 3 段加粗（从 x=14 起向右）===== */
+    linear-gradient(to right, rgba(12, 240, 255, 0.8), rgba(12, 240, 255, 0.8))
+      14px 0 / 24px 2px no-repeat,
+    linear-gradient(to right, rgba(12, 240, 255, 0.9), rgba(12, 240, 255, 0.9))
+      14px 0 / 15px 3px no-repeat,
+    linear-gradient(to right, rgba(12, 240, 255, 1), rgba(12, 240, 255, 1))
+      14px 0 / 7px 4px no-repeat,
+    /* 左上角：左边 3 段加粗（从 y=14 起向下）*/
+    linear-gradient(to bottom, rgba(12, 240, 255, 0.8), rgba(12, 240, 255, 0.8))
+      0 14px / 2px 24px no-repeat,
+    linear-gradient(to bottom, rgba(12, 240, 255, 0.9), rgba(12, 240, 255, 0.9))
+      0 14px / 3px 15px no-repeat,
+    linear-gradient(to bottom, rgba(12, 240, 255, 1), rgba(12, 240, 255, 1))
+      0 14px / 4px 7px no-repeat,
+
+    /* ===== 右上角：上边 3 段加粗（从右向左）===== */
+    linear-gradient(to right, rgba(12, 240, 255, 0.8), rgba(12, 240, 255, 0.8))
+      calc(100% - 38px) 0 / 24px 2px no-repeat,
+    linear-gradient(to right, rgba(12, 240, 255, 0.9), rgba(12, 240, 255, 0.9))
+      calc(100% - 29px) 0 / 15px 3px no-repeat,
+    linear-gradient(to right, rgba(12, 240, 255, 1), rgba(12, 240, 255, 1))
+      calc(100% - 21px) 0 / 7px 4px no-repeat,
+    /* 右上角：右边 3 段加粗 */
+    linear-gradient(to bottom, rgba(12, 240, 255, 0.8), rgba(12, 240, 255, 0.8))
+      calc(100% - 2px) 14px / 2px 24px no-repeat,
+    linear-gradient(to bottom, rgba(12, 240, 255, 0.9), rgba(12, 240, 255, 0.9))
+      calc(100% - 3px) 14px / 3px 15px no-repeat,
+    linear-gradient(to bottom, rgba(12, 240, 255, 1), rgba(12, 240, 255, 1))
+      calc(100% - 4px) 14px / 4px 7px no-repeat,
+
+    /* ===== 左下角：下边 3 段加粗 ===== */
+    linear-gradient(to right, rgba(12, 240, 255, 0.8), rgba(12, 240, 255, 0.8))
+      14px 100% / 24px 2px no-repeat,
+    linear-gradient(to right, rgba(12, 240, 255, 0.9), rgba(12, 240, 255, 0.9))
+      14px 100% / 15px 3px no-repeat,
+    linear-gradient(to right, rgba(12, 240, 255, 1), rgba(12, 240, 255, 1))
+      14px 100% / 7px 4px no-repeat,
+    /* 左下角：左边 3 段加粗（从下向上）*/
+    linear-gradient(to bottom, rgba(12, 240, 255, 0.8), rgba(12, 240, 255, 0.8))
+      0 calc(100% - 38px) / 2px 24px no-repeat,
+    linear-gradient(to bottom, rgba(12, 240, 255, 0.9), rgba(12, 240, 255, 0.9))
+      0 calc(100% - 29px) / 3px 15px no-repeat,
+    linear-gradient(to bottom, rgba(12, 240, 255, 1), rgba(12, 240, 255, 1))
+      0 calc(100% - 21px) / 4px 7px no-repeat,
+
+    /* ===== 右下角：下边 3 段加粗 ===== */
+    linear-gradient(to right, rgba(12, 240, 255, 0.8), rgba(12, 240, 255, 0.8))
+      calc(100% - 38px) 100% / 24px 2px no-repeat,
+    linear-gradient(to right, rgba(12, 240, 255, 0.9), rgba(12, 240, 255, 0.9))
+      calc(100% - 29px) 100% / 15px 3px no-repeat,
+    linear-gradient(to right, rgba(12, 240, 255, 1), rgba(12, 240, 255, 1))
+      calc(100% - 21px) 100% / 7px 4px no-repeat,
+    /* 右下角：右边 3 段加粗 */
+    linear-gradient(to bottom, rgba(12, 240, 255, 0.8), rgba(12, 240, 255, 0.8))
+      calc(100% - 2px) calc(100% - 38px) / 2px 24px no-repeat,
+    linear-gradient(to bottom, rgba(12, 240, 255, 0.9), rgba(12, 240, 255, 0.9))
+      calc(100% - 3px) calc(100% - 29px) / 3px 15px no-repeat,
+    linear-gradient(to bottom, rgba(12, 240, 255, 1), rgba(12, 240, 255, 1))
+      calc(100% - 4px) calc(100% - 21px) / 4px 7px no-repeat;
+
+  filter: drop-shadow(0 0 2px rgba(12, 240, 255, 0.35));
+  animation: hud-panel-breathe 4.5s ease-in-out infinite;
+}
+
+/* 边角光晕 + 上下居中光带 */
+.hud-panel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    /* 四角薄雾光晕 */
+    radial-gradient(18px 18px at 0 0, rgba(12, 240, 255, 0.4), transparent 70%),
+    radial-gradient(18px 18px at 100% 0, rgba(12, 240, 255, 0.4), transparent 70%),
+    radial-gradient(18px 18px at 0 100%, rgba(12, 240, 255, 0.4), transparent 70%),
+    radial-gradient(18px 18px at 100% 100%, rgba(12, 240, 255, 0.4), transparent 70%),
+    /* 上边中间光带：中心 0.75 */
+    linear-gradient(
+      90deg,
+      transparent 15%,
+      rgba(12, 240, 255, 0.25) 30%,
+      rgba(12, 240, 255, 0.75) 50%,
+      rgba(12, 240, 255, 0.25) 70%,
+      transparent 85%
+    ) top / 100% 1.5px no-repeat,
+    /* 下边中间光带 */
+    linear-gradient(
+      90deg,
+      transparent 15%,
+      rgba(12, 240, 255, 0.2) 30%,
+      rgba(12, 240, 255, 0.6) 50%,
+      rgba(12, 240, 255, 0.2) 70%,
+      transparent 85%
+    ) bottom / 100% 1.5px no-repeat;
+  filter: blur(0.5px);
+  animation: hud-panel-breathe-band 4.5s ease-in-out infinite;
+}
+
+/* 呼吸动画：轮廓外发光 */
+@keyframes hud-panel-breathe {
+  0%, 100% {
+    filter: drop-shadow(0 0 3px rgba(12, 240, 255, 0.35));
+  }
+  50% {
+    filter: drop-shadow(0 0 5px rgba(12, 240, 255, 0.55));
+  }
+}
+
+/* 呼吸动画：光带透明度 */
+@keyframes hud-panel-breathe-band {
+  0%, 100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* 无障碍：用户偏好减弱动态效果时，关闭呼吸动画 */
+@media (prefers-reduced-motion: reduce) {
+  .hud-panel::before,
+  .hud-panel::after {
+    animation: none !important;
+  }
+}
+
+/* 大标题：亮青 + 发光 */
+.hud-title {
+  color: var(--hud-primary-bright);
+  text-shadow: 0 0 14px rgba(0, 224, 255, 0.55);
+  letter-spacing: 0.06em;
+}
+
+/* 等宽数字/代号 */
+.hud-mono {
+  font-family: var(--hud-font-mono);
+}
+
+/* 小节标签：字母间距拉开的次要色小字 */
+.hud-label {
+  color: var(--hud-text-muted);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* 视图页面容器 */
+.view-page {
+  min-height: 100%;
+}
+
+/* 包裹第三方组件的通用容器：让组件区自身成为一块全息面板 */
+.hud-embed {
+  position: relative;
+  border-radius: 0;
+  overflow: hidden;
+}
+
+/* 常规嵌入页：组件面板至少撑满视口剩余高度（顶栏 54 + 内容区留白 30） */
+.view-embed {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 92px);
+}
+.view-embed > * {
+  flex: 1;
+  min-height: 0;
+}
+
+/* 满高页（对话调试 / 工作流画布）：锁定视口高度，内部自行滚动 */
+.view-fill {
+  height: calc(100vh - 92px);
+  overflow: hidden;
+}
+
+/* ==========================================================================
+ * 6. 明亮模式覆写
+ * --------------------------------------------------------------------------
+ * 当 `html[data-theme='light']` 时，把 HUD 暗色面板换成淡色玻璃；库自身的
+ * 浅色样式在 `.dark` 类移除后自动生效，这里只覆写宿主 HUD 壳与 --hud-* 令牌。
+ * `html[data-theme='light']` 特异性 (0,1,1) > `:root` (0,1,0)，可覆盖上方。
+ * ========================================================================== */
+html[data-theme='light'] {
+  --hud-primary: #0095cc;
+  --hud-primary-bright: #00a8e0;
+  --hud-primary-deep: #007aa8;
+
+  --hud-surface: #ffffff;
+  --hud-surface-raised: #f4f8fc;
+  --hud-sunken: #eaf1f8;
+  --hud-fill: rgba(0, 140, 200, 0.05);
+  --hud-fill-strong: rgba(0, 140, 200, 0.1);
+  --hud-accent-soft: rgba(0, 160, 220, 0.08);
+  --hud-warning-soft: rgba(234, 179, 8, 0.1);
+  --hud-danger-soft: rgba(220, 38, 38, 0.08);
+  --hud-success-soft: rgba(22, 163, 74, 0.08);
+
+  --hud-border: rgba(0, 100, 160, 0.16);
+  --hud-border-strong: rgba(0, 120, 180, 0.32);
+  --hud-border-faint: rgba(0, 100, 160, 0.08);
+
+  --hud-text-strong: #0f2a3d;
+  --hud-text: #24475c;
+  --hud-text-muted: #5a7b93;
+  --hud-text-faint: #849fb3;
+
+  --hud-danger: #dc2626;
+  --hud-success: #16a34a;
+  --hud-warning: #ca8a04;
+
+  --hud-glow: 0 0 12px rgba(0, 140, 200, 0.08);
+  --hud-glow-strong: 0 0 18px rgba(0, 140, 200, 0.16);
+  --hud-panel-bg: rgba(255, 255, 255, 0.75);
+
+  --color-as-primary: #0095cc;
+  --color-as-primary-hover: #00a8e0;
+  --color-as-primary-active: #007aa8;
+  --color-as-success: #16a34a;
+  --color-as-warning: #ca8a04;
+  --color-as-danger: #dc2626;
+
+  --as-text: #24475c;
+  --as-text-secondary: #5a7b93;
+  --as-text-placeholder: #849fb3;
+  --as-text-disabled: #b0c2d0;
+  --as-border: rgba(0, 100, 160, 0.22);
+  --as-border-secondary: rgba(0, 100, 160, 0.1);
+  --as-bg: rgba(244, 248, 252, 0.85);
+}
+
+/* HUD 壳：侧边栏 / 顶栏 —— 从深色不透明玻璃换成淡色玻璃 */
+html[data-theme='light'] .hud-sidebar {
+  border-right-color: rgba(0, 100, 160, 0.12);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(234, 241, 248, 0.96));
+  box-shadow: inset -12px 0 24px -18px rgba(0, 120, 180, 0.12);
+}
+
+html[data-theme='light'] .hud-logo {
+  border-bottom-color: rgba(0, 100, 160, 0.1);
+}
+
+html[data-theme='light'] .hud-logo-mark {
+  color: #ffffff;
+}
+
+html[data-theme='light'] .hud-logo-text b {
+  color: #007aa8;
+  text-shadow: none;
+}
+
+html[data-theme='light'] .hud-logo-text i {
+  color: #5a7b93;
+}
+
+html[data-theme='light'] .hud-nav-title {
+  color: #849fb3;
+}
+
+html[data-theme='light'] .hud-nav-item {
+  color: #24475c;
+}
+
+html[data-theme='light'] .hud-nav-item:hover {
+  color: #0f2a3d;
+  background: rgba(0, 140, 200, 0.06);
+  border-color: rgba(0, 140, 200, 0.22);
+}
+
+html[data-theme='light'] .hud-nav-item.active {
+  color: #00698f;
+  background: linear-gradient(90deg, rgba(0, 170, 230, 0.14), rgba(0, 120, 180, 0.05));
+  border-color: rgba(0, 160, 220, 0.55);
+  box-shadow: 0 0 10px rgba(0, 160, 220, 0.18);
+  text-shadow: none;
+}
+
+html[data-theme='light'] .hud-nav-icon {
+  color: #5a7b93;
+}
+
+html[data-theme='light'] .hud-nav-item.active .hud-nav-icon {
+  color: #0095cc;
+  filter: none;
+}
+
+html[data-theme='light'] .hud-sidebar-foot {
+  color: #5a7b93;
+  border-top-color: rgba(0, 100, 160, 0.1);
+}
+
+html[data-theme='light'] .hud-topbar {
+  border-bottom-color: rgba(0, 100, 160, 0.12);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+html[data-theme='light'] .hud-crumb {
+  color: #5a7b93;
+}
+
+html[data-theme='light'] .hud-crumb-sys {
+  color: #849fb3;
+}
+
+html[data-theme='light'] .hud-crumb-sep {
+  color: #b0c2d0;
+}
+
+html[data-theme='light'] .hud-crumb-cur {
+  color: #0f2a3d;
+  text-shadow: none;
+}
+
+html[data-theme='light'] .hud-clock b {
+  color: #007aa8;
+  text-shadow: none;
+}
+
+html[data-theme='light'] .hud-clock i {
+  color: #849fb3;
+}
+
+/* 全局底色：让主内容区在明亮模式下不透明 */
+html[data-theme='light'] body {
+  background: #f4f8fc;
+  color: #24475c;
+}
+
+html[data-theme='light'] .hud-content {
+  color: #24475c;
+}
+
+/* 明亮模式下：保留台阶线框 + 转角加粗，但降低发光强度并关闭呼吸动画 */
+html[data-theme='light'] .hud-panel::before {
+  background:
+    /* 主边线：1px */
+    linear-gradient(to right, rgba(0, 140, 200, 0.35), rgba(0, 140, 200, 0.35))
+      top / calc(100% - 28px) 1px no-repeat,
+    linear-gradient(to right, rgba(0, 140, 200, 0.35), rgba(0, 140, 200, 0.35))
+      bottom / calc(100% - 28px) 1px no-repeat,
+    linear-gradient(to bottom, rgba(0, 140, 200, 0.35), rgba(0, 140, 200, 0.35))
+      left / 1px calc(100% - 28px) no-repeat,
+    linear-gradient(to bottom, rgba(0, 140, 200, 0.35), rgba(0, 140, 200, 0.35))
+      right / 1px calc(100% - 28px) no-repeat,
+    /* 4 斜角 */
+    linear-gradient(-45deg, transparent 46%, rgba(0, 140, 200, 0.35) 46% 54%, transparent 54%)
+      top left / 14px 14px no-repeat,
+    linear-gradient(45deg, transparent 46%, rgba(0, 140, 200, 0.35) 46% 54%, transparent 54%)
+      top right / 14px 14px no-repeat,
+    linear-gradient(45deg, transparent 46%, rgba(0, 140, 200, 0.35) 46% 54%, transparent 54%)
+      bottom left / 14px 14px no-repeat,
+    linear-gradient(-45deg, transparent 46%, rgba(0, 140, 200, 0.35) 46% 54%, transparent 54%)
+      bottom right / 14px 14px no-repeat,
+    /* 左上角加粗 */
+    linear-gradient(to right, rgba(0, 140, 200, 0.5), rgba(0, 140, 200, 0.5))
+      14px 0 / 24px 2px no-repeat,
+    linear-gradient(to right, rgba(0, 140, 200, 0.6), rgba(0, 140, 200, 0.6))
+      14px 0 / 15px 3px no-repeat,
+    linear-gradient(to right, rgba(0, 140, 200, 0.7), rgba(0, 140, 200, 0.7))
+      14px 0 / 7px 4px no-repeat,
+    linear-gradient(to bottom, rgba(0, 140, 200, 0.5), rgba(0, 140, 200, 0.5))
+      0 14px / 2px 24px no-repeat,
+    linear-gradient(to bottom, rgba(0, 140, 200, 0.6), rgba(0, 140, 200, 0.6))
+      0 14px / 3px 15px no-repeat,
+    linear-gradient(to bottom, rgba(0, 140, 200, 0.7), rgba(0, 140, 200, 0.7))
+      0 14px / 4px 7px no-repeat,
+    /* 右上角加粗 */
+    linear-gradient(to right, rgba(0, 140, 200, 0.5), rgba(0, 140, 200, 0.5))
+      calc(100% - 38px) 0 / 24px 2px no-repeat,
+    linear-gradient(to right, rgba(0, 140, 200, 0.6), rgba(0, 140, 200, 0.6))
+      calc(100% - 29px) 0 / 15px 3px no-repeat,
+    linear-gradient(to right, rgba(0, 140, 200, 0.7), rgba(0, 140, 200, 0.7))
+      calc(100% - 21px) 0 / 7px 4px no-repeat,
+    linear-gradient(to bottom, rgba(0, 140, 200, 0.5), rgba(0, 140, 200, 0.5))
+      calc(100% - 2px) 14px / 2px 24px no-repeat,
+    linear-gradient(to bottom, rgba(0, 140, 200, 0.6), rgba(0, 140, 200, 0.6))
+      calc(100% - 3px) 14px / 3px 15px no-repeat,
+    linear-gradient(to bottom, rgba(0, 140, 200, 0.7), rgba(0, 140, 200, 0.7))
+      calc(100% - 4px) 14px / 4px 7px no-repeat,
+    /* 左下角加粗 */
+    linear-gradient(to right, rgba(0, 140, 200, 0.5), rgba(0, 140, 200, 0.5))
+      14px 100% / 24px 2px no-repeat,
+    linear-gradient(to right, rgba(0, 140, 200, 0.6), rgba(0, 140, 200, 0.6))
+      14px 100% / 15px 3px no-repeat,
+    linear-gradient(to right, rgba(0, 140, 200, 0.7), rgba(0, 140, 200, 0.7))
+      14px 100% / 7px 4px no-repeat,
+    linear-gradient(to bottom, rgba(0, 140, 200, 0.5), rgba(0, 140, 200, 0.5))
+      0 calc(100% - 38px) / 2px 24px no-repeat,
+    linear-gradient(to bottom, rgba(0, 140, 200, 0.6), rgba(0, 140, 200, 0.6))
+      0 calc(100% - 29px) / 3px 15px no-repeat,
+    linear-gradient(to bottom, rgba(0, 140, 200, 0.7), rgba(0, 140, 200, 0.7))
+      0 calc(100% - 21px) / 4px 7px no-repeat,
+    /* 右下角加粗 */
+    linear-gradient(to right, rgba(0, 140, 200, 0.5), rgba(0, 140, 200, 0.5))
+      calc(100% - 38px) 100% / 24px 2px no-repeat,
+    linear-gradient(to right, rgba(0, 140, 200, 0.6), rgba(0, 140, 200, 0.6))
+      calc(100% - 29px) 100% / 15px 3px no-repeat,
+    linear-gradient(to right, rgba(0, 140, 200, 0.7), rgba(0, 140, 200, 0.7))
+      calc(100% - 21px) 100% / 7px 4px no-repeat,
+    linear-gradient(to bottom, rgba(0, 140, 200, 0.5), rgba(0, 140, 200, 0.5))
+      calc(100% - 2px) calc(100% - 38px) / 2px 24px no-repeat,
+    linear-gradient(to bottom, rgba(0, 140, 200, 0.6), rgba(0, 140, 200, 0.6))
+      calc(100% - 3px) calc(100% - 29px) / 3px 15px no-repeat,
+    linear-gradient(to bottom, rgba(0, 140, 200, 0.7), rgba(0, 140, 200, 0.7))
+      calc(100% - 4px) calc(100% - 21px) / 4px 7px no-repeat;
+  filter: drop-shadow(0 0 1.5px rgba(0, 140, 200, 0.1));
+  animation: none;
+}
+
+html[data-theme='light'] .hud-panel::after {
+  background:
+    radial-gradient(18px 18px at 0 0, rgba(0, 140, 200, 0.22), transparent 70%),
+    radial-gradient(18px 18px at 100% 0, rgba(0, 140, 200, 0.22), transparent 70%),
+    radial-gradient(18px 18px at 0 100%, rgba(0, 140, 200, 0.22), transparent 70%),
+    radial-gradient(18px 18px at 100% 100%, rgba(0, 140, 200, 0.22), transparent 70%),
+    linear-gradient(
+      90deg,
+      transparent 15%,
+      rgba(0, 140, 200, 0.12) 30%,
+      rgba(0, 140, 200, 0.35) 50%,
+      rgba(0, 140, 200, 0.12) 70%,
+      transparent 85%
+    ) top / 100% 1.5px no-repeat,
+    linear-gradient(
+      90deg,
+      transparent 15%,
+      rgba(0, 140, 200, 0.1) 30%,
+      rgba(0, 140, 200, 0.25) 50%,
+      rgba(0, 140, 200, 0.1) 70%,
+      transparent 85%
+    ) bottom / 100% 1.5px no-repeat;
+  filter: blur(0.4px);
+  animation: none;
+  opacity: 0.7;
+}
+
+/* ========================================================================
+ * 7. 精修切角边框
+ *
+ * 旧实现用多组 2/3/4px 线条叠出四角，在不同尺寸和 DPR 下容易形成
+ * “梳齿”和断口。这里改为一个连续的 10px 切角轮廓，再用独立光带强调
+ * 四角；轮廓负责几何，高光只负责质感，两者不再互相挤压。
+ * ======================================================================== */
+.hud-panel {
+  --hud-frame-color: rgba(12, 240, 255, 0.58);
+  --hud-frame-hot: rgba(72, 248, 255, 0.98);
+  --hud-frame-glow: rgba(12, 240, 255, 0.42);
+  --hud-frame-cut: 12px;
+}
+
+.hud-panel::before {
+  inset: 0;
+  z-index: 2;
+  padding: 1px;
+  background: linear-gradient(
+    110deg,
+    var(--hud-frame-hot) 0%,
+    var(--hud-frame-color) 8%,
+    rgba(12, 240, 255, 0.34) 38%,
+    rgba(12, 240, 255, 0.46) 72%,
+    var(--hud-frame-color) 92%,
+    var(--hud-frame-hot) 100%
+  );
+  clip-path: polygon(
+    var(--hud-frame-cut) 0,
+    calc(100% - var(--hud-frame-cut)) 0,
+    100% var(--hud-frame-cut),
+    100% calc(100% - var(--hud-frame-cut)),
+    calc(100% - var(--hud-frame-cut)) 100%,
+    var(--hud-frame-cut) 100%,
+    0 calc(100% - var(--hud-frame-cut)),
+    0 var(--hud-frame-cut)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  filter: drop-shadow(0 0 3px var(--hud-frame-glow));
+  animation: hud-panel-breathe 4.5s ease-in-out infinite;
+}
+
+.hud-panel::after {
+  inset: 0;
+  z-index: 3;
+  background:
+    /*
+     * 四条斜边单独加宽：中心约 2.8px 实线，外侧各带一层柔光。
+     * 这几层必须放在横竖光带之前，才能让切角成为视觉最亮点。
+     */
+    linear-gradient(
+      -45deg,
+      transparent 27%,
+      rgba(12, 240, 255, 0.26) 33%,
+      var(--hud-frame-hot) 38% 62%,
+      rgba(12, 240, 255, 0.26) 67%,
+      transparent 73%
+    ) 0 0 / var(--hud-frame-cut) var(--hud-frame-cut) no-repeat,
+    linear-gradient(
+      45deg,
+      transparent 27%,
+      rgba(12, 240, 255, 0.26) 33%,
+      var(--hud-frame-hot) 38% 62%,
+      rgba(12, 240, 255, 0.26) 67%,
+      transparent 73%
+    ) 100% 0 / var(--hud-frame-cut) var(--hud-frame-cut) no-repeat,
+    linear-gradient(
+      45deg,
+      transparent 27%,
+      rgba(12, 240, 255, 0.26) 33%,
+      var(--hud-frame-hot) 38% 62%,
+      rgba(12, 240, 255, 0.26) 67%,
+      transparent 73%
+    ) 0 100% / var(--hud-frame-cut) var(--hud-frame-cut) no-repeat,
+    linear-gradient(
+      -45deg,
+      transparent 27%,
+      rgba(12, 240, 255, 0.26) 33%,
+      var(--hud-frame-hot) 38% 62%,
+      rgba(12, 240, 255, 0.26) 67%,
+      transparent 73%
+    ) 100% 100% / var(--hud-frame-cut) var(--hud-frame-cut) no-repeat,
+    /* 水平高亮：从斜角端点向面板中部自然淡出 */
+    linear-gradient(90deg, var(--hud-frame-hot), transparent)
+      var(--hud-frame-cut) 0 / 48px 2px no-repeat,
+    linear-gradient(270deg, var(--hud-frame-hot), transparent)
+      calc(100% - var(--hud-frame-cut)) 0 / 48px 2px no-repeat,
+    linear-gradient(90deg, var(--hud-frame-hot), transparent)
+      var(--hud-frame-cut) 100% / 48px 2px no-repeat,
+    linear-gradient(270deg, var(--hud-frame-hot), transparent)
+      calc(100% - var(--hud-frame-cut)) 100% / 48px 2px no-repeat,
+    /* 垂直高亮：长度略短，避免角部显得笨重 */
+    linear-gradient(180deg, var(--hud-frame-hot), transparent)
+      0 var(--hud-frame-cut) / 2px 42px no-repeat,
+    linear-gradient(180deg, var(--hud-frame-hot), transparent)
+      100% var(--hud-frame-cut) / 2px 42px no-repeat,
+    linear-gradient(0deg, var(--hud-frame-hot), transparent)
+      0 calc(100% - var(--hud-frame-cut)) / 2px 42px no-repeat,
+    linear-gradient(0deg, var(--hud-frame-hot), transparent)
+      100% calc(100% - var(--hud-frame-cut)) / 2px 42px no-repeat,
+    /* 紧贴折角的小范围光晕，不污染整条边 */
+    radial-gradient(18px 18px at 8px 8px, var(--hud-frame-glow), transparent 72%),
+    radial-gradient(18px 18px at calc(100% - 8px) 8px, var(--hud-frame-glow), transparent 72%),
+    radial-gradient(18px 18px at 8px calc(100% - 8px), var(--hud-frame-glow), transparent 72%),
+    radial-gradient(18px 18px at calc(100% - 8px) calc(100% - 8px), var(--hud-frame-glow), transparent 72%);
+  filter: drop-shadow(0 0 4px var(--hud-frame-glow));
+  animation: hud-panel-breathe-band 4.5s ease-in-out infinite;
+}
+
+html[data-theme='light'] .hud-panel {
+  --hud-frame-color: rgba(0, 140, 200, 0.38);
+  --hud-frame-hot: rgba(0, 140, 200, 0.68);
+  --hud-frame-glow: rgba(0, 140, 200, 0.2);
+}
+
+html[data-theme='light'] .hud-panel::before,
+html[data-theme='light'] .hud-panel::after {
+  animation: none;
+}
