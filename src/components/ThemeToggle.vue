@@ -50,8 +50,11 @@ const { isDark, toggle } = useTheme()
 <style scoped>
 .hud-theme-toggle {
   display: flex;
+  flex: 0 0 92px;
   gap: 8px;
+  justify-content: center;
   align-items: center;
+  width: 92px;
   height: 30px;
   padding: 0 10px 0 6px;
   font-family: inherit;
@@ -60,7 +63,13 @@ const { isDark, toggle } = useTheme()
   background: rgba(0, 30, 60, 0.45);
   border: 1px solid rgba(0, 204, 255, 0.28);
   border-radius: 7px;
+  outline: none;
   transition: all 0.2s ease;
+}
+
+.hud-theme-toggle:focus-visible {
+  border-color: #1677ff;
+  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.18);
 }
 
 .hud-theme-toggle:hover {
@@ -141,11 +150,14 @@ html[data-theme='light'] .hud-theme-icon.sun {
 }
 
 .hud-theme-label {
+  display: inline-block;
+  width: 34px;
   font-size: 10.5px;
   font-weight: 600;
   letter-spacing: 1.5px;
   color: currentColor;
   text-shadow: 0 0 8px rgba(0, 224, 255, 0.4);
+  text-align: center;
 }
 
 html[data-theme='light'] .hud-theme-label {
@@ -162,5 +174,29 @@ html[data-theme='light'] .hud-theme-toggle {
 html[data-theme='light'] .hud-theme-toggle:hover {
   border-color: rgba(0, 140, 200, 0.6);
   box-shadow: 0 0 10px rgba(0, 140, 200, 0.15);
+}
+
+html[data-visual='normal'] .hud-theme-toggle {
+  color: rgba(255, 255, 255, 0.78);
+  background: #1f1f1f;
+  border-color: #424242;
+  box-shadow: none;
+}
+
+html[data-visual='normal'] .hud-theme-toggle:hover {
+  color: #69a9ff;
+  border-color: #1677ff;
+  box-shadow: none;
+}
+
+html[data-theme='light'][data-visual='normal'] .hud-theme-toggle {
+  color: #434343;
+  background: #ffffff;
+  border-color: #d9d9d9;
+}
+
+html[data-theme='light'][data-visual='normal'] .hud-theme-toggle:hover {
+  color: #1677ff;
+  border-color: #1677ff;
 }
 </style>

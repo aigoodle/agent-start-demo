@@ -137,4 +137,19 @@ html[data-theme='light'] .hud-bg-particles {
 html[data-theme='light'] .hud-bg-vignette {
   box-shadow: inset 0 0 120px 30px rgba(200, 220, 240, 0.35);
 }
+
+/* 普通模式使用纯色应用底，不显示网格、粒子和暗角。 */
+html[data-visual='normal'] .hud-bg {
+  background: #141414;
+}
+
+html[data-theme='light'][data-visual='normal'] .hud-bg {
+  background: #f5f5f5;
+}
+
+html[data-visual='normal'] .hud-bg-grid,
+html[data-visual='normal'] .hud-bg-particles,
+html[data-visual='normal'] .hud-bg-vignette {
+  display: none;
+}
 </style>

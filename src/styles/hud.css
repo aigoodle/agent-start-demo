@@ -346,6 +346,10 @@ html.dark[data-theme='dark'] .dify-flow-designer {
  * ========================================================================== */
 html,
 body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
   background: #040c1a;
   color: var(--hud-text);
   color-scheme: dark;
@@ -354,6 +358,15 @@ body {
 #app {
   position: relative;
   z-index: 1;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 ::selection {
@@ -604,6 +617,7 @@ body {
 
 /* 视图页面容器 */
 .view-page {
+  min-width: 0;
   min-height: 100%;
 }
 
@@ -618,17 +632,46 @@ body {
 .view-embed {
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 92px);
+  width: 100%;
+  min-width: 0;
+  min-height: 100%;
 }
 .view-embed > * {
   flex: 1;
+  min-width: 0;
   min-height: 0;
 }
 
 /* 满高页（对话调试 / 工作流画布）：锁定视口高度，内部自行滚动 */
 .view-fill {
-  height: calc(100vh - 92px);
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
   overflow: hidden;
+}
+
+/* 应用页工具栏在真正的小内容宽度下改为两行，避免控件固有宽度撑出横向滚动。 */
+@media (max-width: 640px) {
+  .agent-apps-toolbar {
+    align-items: stretch;
+    flex-wrap: wrap !important;
+  }
+
+  .agent-apps-header,
+  .agent-apps-controls {
+    width: 100% !important;
+  }
+
+  .agent-apps-controls {
+    flex: 1 1 100% !important;
+    flex-wrap: wrap !important;
+  }
+
+  .agent-apps-search {
+    flex: 1 1 180px !important;
+    width: auto !important;
+  }
 }
 
 /* ==========================================================================
@@ -901,6 +944,7 @@ html[data-theme='light'] .hud-panel::after {
 .hud-panel {
   --hud-frame-color: rgba(12, 240, 255, 0.58);
   --hud-frame-hot: rgba(72, 248, 255, 0.98);
+  --hud-frame-soft: rgba(12, 240, 255, 0.22);
   --hud-frame-glow: rgba(12, 240, 255, 0.42);
   --hud-frame-cut: 12px;
 }
@@ -918,11 +962,11 @@ html[data-theme='light'] .hud-panel::after {
     110deg,
     var(--hud-frame-hot) 0%,
     var(--hud-frame-color) 8%,
-    rgba(12, 240, 255, 0.34) 38%,
-    rgba(12, 240, 255, 0.46) 72%,
+    var(--hud-frame-soft) 38%,
+    var(--hud-frame-color) 72%,
     var(--hud-frame-color) 92%,
     var(--hud-frame-hot) 100%
-  );
+  ) !important;
   clip-path: polygon(
     var(--hud-frame-cut) 0,
     calc(100% - var(--hud-frame-cut)) 0,
@@ -954,33 +998,33 @@ html[data-theme='light'] .hud-panel::after {
     linear-gradient(
       -45deg,
       transparent 36%,
-      rgba(12, 240, 255, 0.22) 41%,
+      var(--hud-frame-soft) 41%,
       var(--hud-frame-hot) 44% 56%,
-      rgba(12, 240, 255, 0.22) 59%,
+      var(--hud-frame-soft) 59%,
       transparent 64%
     ) 0 0 / calc(var(--hud-frame-cut) + 4px) calc(var(--hud-frame-cut) + 4px) no-repeat,
     linear-gradient(
       45deg,
       transparent 36%,
-      rgba(12, 240, 255, 0.22) 41%,
+      var(--hud-frame-soft) 41%,
       var(--hud-frame-hot) 44% 56%,
-      rgba(12, 240, 255, 0.22) 59%,
+      var(--hud-frame-soft) 59%,
       transparent 64%
     ) 100% 0 / calc(var(--hud-frame-cut) + 4px) calc(var(--hud-frame-cut) + 4px) no-repeat,
     linear-gradient(
       45deg,
       transparent 36%,
-      rgba(12, 240, 255, 0.22) 41%,
+      var(--hud-frame-soft) 41%,
       var(--hud-frame-hot) 44% 56%,
-      rgba(12, 240, 255, 0.22) 59%,
+      var(--hud-frame-soft) 59%,
       transparent 64%
     ) 0 100% / calc(var(--hud-frame-cut) + 4px) calc(var(--hud-frame-cut) + 4px) no-repeat,
     linear-gradient(
       -45deg,
       transparent 36%,
-      rgba(12, 240, 255, 0.22) 41%,
+      var(--hud-frame-soft) 41%,
       var(--hud-frame-hot) 44% 56%,
-      rgba(12, 240, 255, 0.22) 59%,
+      var(--hud-frame-soft) 59%,
       transparent 64%
     ) 100% 100% / calc(var(--hud-frame-cut) + 4px) calc(var(--hud-frame-cut) + 4px) no-repeat,
     /* 横向：上限 100/50px；窄面板自动收缩到边长的 20%/10% */
@@ -1016,7 +1060,7 @@ html[data-theme='light'] .hud-panel::after {
     linear-gradient(var(--hud-frame-hot), var(--hud-frame-hot))
       calc(100% - 2px) calc(100% - var(--hud-frame-cut) - 2px) / 1px min(100px, 20%) no-repeat,
     linear-gradient(var(--hud-frame-hot), var(--hud-frame-hot))
-      100% calc(100% - var(--hud-frame-cut) - 2px) / 2px min(50px, 10%) no-repeat;
+      100% calc(100% - var(--hud-frame-cut) - 2px) / 2px min(50px, 10%) no-repeat !important;
   /* 只给线条加外发光，不再绘制四角径向背景光斑 */
   filter: drop-shadow(0 0 3px var(--hud-frame-glow));
   animation: hud-panel-breathe-band 4.5s ease-in-out infinite;
@@ -1025,6 +1069,7 @@ html[data-theme='light'] .hud-panel::after {
 html[data-theme='light'] .hud-panel {
   --hud-frame-color: rgba(0, 140, 200, 0.38);
   --hud-frame-hot: rgba(0, 140, 200, 0.68);
+  --hud-frame-soft: rgba(0, 140, 200, 0.2);
   --hud-frame-glow: rgba(0, 140, 200, 0.2);
 }
 
@@ -1270,4 +1315,296 @@ html[data-theme='light'] .as-hud-frame--modal .as-btn--primary {
   .as-hud-frame--modal .as-modal__body { padding: 20px; }
   .as-hud-frame--modal .as-modal__footer { gap: 12px; }
   .as-hud-frame--modal .as-btn { min-width: 0; flex: 1; }
+}
+
+/* ========================================================================
+ * 9. 普通视觉模式
+ *
+ * 颜色主题（暗黑/明亮）与视觉模式（普通/科技）彼此独立。普通模式移除
+ * HUD 的网格、发光和切角语言，回到接近 Ant Design 的圆角与细灰边框。
+ * ======================================================================== */
+html[data-visual='normal'] {
+  --color-as-primary: #1677ff;
+  --color-as-primary-hover: #4096ff;
+  --color-as-primary-active: #0958d9;
+  --as-text: rgba(255, 255, 255, 0.85);
+  --as-text-secondary: rgba(255, 255, 255, 0.65);
+  --as-text-placeholder: rgba(255, 255, 255, 0.35);
+  --as-border: #424242;
+  --as-border-secondary: #303030;
+  --as-bg: #141414;
+  --as-bg-elevated: #1f1f1f;
+  --as-fill-secondary: rgba(255, 255, 255, 0.08);
+  --as-shadow: 0 6px 16px rgba(0, 0, 0, 0.32);
+  --hud-glow: none;
+  --hud-glow-strong: none;
+  --hud-panel-bg: #1f1f1f;
+}
+
+html[data-theme='light'][data-visual='normal'] {
+  --as-text: rgba(0, 0, 0, 0.88);
+  --as-text-secondary: rgba(0, 0, 0, 0.65);
+  --as-text-placeholder: rgba(0, 0, 0, 0.25);
+  --as-border: #d9d9d9;
+  --as-border-secondary: #f0f0f0;
+  --as-bg: #ffffff;
+  --as-bg-elevated: #ffffff;
+  --as-fill-secondary: rgba(0, 0, 0, 0.04);
+  --as-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  --hud-panel-bg: #ffffff;
+}
+
+html[data-visual='normal'] .hud-sidebar {
+  border-right-color: #303030;
+  background: #141414;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+html[data-theme='light'][data-visual='normal'] .hud-sidebar {
+  border-right-color: #e5e7eb;
+  background: #ffffff;
+}
+
+html[data-visual='normal'] .hud-topbar {
+  border-bottom-color: #303030;
+  background: #141414;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+html[data-theme='light'][data-visual='normal'] .hud-topbar {
+  border-bottom-color: #e5e7eb;
+  background: #ffffff;
+}
+
+html[data-visual='normal'] .hud-content {
+  background: #141414;
+}
+
+html[data-theme='light'][data-visual='normal'] .hud-content {
+  background: #f5f5f5;
+}
+
+/* 普通模式的应用壳使用明确色值，避免继承 HUD 发光色后与背景失去对比。 */
+html[data-visual='normal'] .hud-logo,
+html[data-visual='normal'] .hud-sidebar-foot {
+  border-color: #303030;
+}
+
+html[data-visual='normal'] .hud-logo-text b,
+html[data-visual='normal'] .hud-crumb-cur,
+html[data-visual='normal'] .hud-clock b {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+html[data-visual='normal'] .hud-logo-text i,
+html[data-visual='normal'] .hud-crumb,
+html[data-visual='normal'] .hud-clock i,
+html[data-visual='normal'] .hud-sidebar-foot {
+  color: rgba(255, 255, 255, 0.58);
+}
+
+html[data-visual='normal'] .hud-nav-title,
+html[data-visual='normal'] .hud-crumb-sys,
+html[data-visual='normal'] .hud-crumb-sep {
+  color: rgba(255, 255, 255, 0.42);
+}
+
+html[data-visual='normal'] .hud-nav-item,
+html[data-visual='normal'] .hud-nav-icon {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+html[data-visual='normal'] .hud-search,
+html[data-visual='normal'] .hud-search-pop {
+  color: rgba(255, 255, 255, 0.58);
+  background: #1f1f1f;
+  border-color: #424242;
+}
+
+html[data-visual='normal'] .hud-search input,
+html[data-visual='normal'] .hud-search-item {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+html[data-visual='normal'] .hud-search input::placeholder,
+html[data-visual='normal'] .hud-search-item i {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+html[data-theme='light'][data-visual='normal'] .hud-logo,
+html[data-theme='light'][data-visual='normal'] .hud-sidebar-foot {
+  border-color: #f0f0f0;
+}
+
+html[data-theme='light'][data-visual='normal'] .hud-logo-text b,
+html[data-theme='light'][data-visual='normal'] .hud-crumb-cur,
+html[data-theme='light'][data-visual='normal'] .hud-clock b {
+  color: #262626;
+}
+
+html[data-theme='light'][data-visual='normal'] .hud-logo-text i,
+html[data-theme='light'][data-visual='normal'] .hud-crumb,
+html[data-theme='light'][data-visual='normal'] .hud-clock i,
+html[data-theme='light'][data-visual='normal'] .hud-sidebar-foot {
+  color: #595959;
+}
+
+html[data-theme='light'][data-visual='normal'] .hud-nav-title,
+html[data-theme='light'][data-visual='normal'] .hud-crumb-sys,
+html[data-theme='light'][data-visual='normal'] .hud-crumb-sep {
+  color: #8c8c8c;
+}
+
+html[data-theme='light'][data-visual='normal'] .hud-nav-item,
+html[data-theme='light'][data-visual='normal'] .hud-nav-icon {
+  color: #434343;
+}
+
+html[data-theme='light'][data-visual='normal'] .hud-search,
+html[data-theme='light'][data-visual='normal'] .hud-search-pop {
+  color: #8c8c8c;
+  background: #ffffff;
+  border-color: #d9d9d9;
+}
+
+html[data-theme='light'][data-visual='normal'] .hud-search input,
+html[data-theme='light'][data-visual='normal'] .hud-search-item {
+  color: #262626;
+}
+
+html[data-theme='light'][data-visual='normal'] .hud-search input::placeholder,
+html[data-theme='light'][data-visual='normal'] .hud-search-item i {
+  color: #bfbfbf;
+}
+
+html[data-visual='normal'] .hud-logo-mark {
+  color: #ffffff;
+  background: #1677ff;
+  clip-path: none;
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+html[data-visual='normal'] .hud-title {
+  color: var(--as-text);
+  text-shadow: none;
+}
+
+html[data-visual='normal'] .hud-nav-item:hover {
+  color: var(--as-text);
+  background: var(--as-fill-secondary);
+  border-color: transparent;
+  box-shadow: none;
+}
+
+html[data-visual='normal'] .hud-nav-item.active {
+  color: #1677ff;
+  background: rgba(22, 119, 255, 0.12);
+  border-color: transparent;
+  box-shadow: none;
+  text-shadow: none;
+}
+
+html[data-visual='normal'] .hud-nav-item.active .hud-nav-icon {
+  color: #1677ff;
+  filter: none;
+}
+
+html[data-visual='normal'] .hud-search {
+  background: var(--as-bg-elevated);
+  border-color: var(--as-border);
+  box-shadow: none;
+}
+
+html[data-visual='normal'] .hud-search:hover,
+html[data-visual='normal'] .hud-search.focused {
+  border-color: #1677ff;
+  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
+}
+
+html[data-visual='normal'] .hud-panel {
+  isolation: auto;
+  overflow: hidden;
+  background: var(--hud-panel-bg);
+  border: 1px solid var(--as-border-secondary);
+  border-radius: 8px;
+  box-shadow: var(--as-shadow);
+}
+
+html[data-visual='normal'] .hud-panel.hud-embed {
+  overflow: hidden;
+}
+
+html[data-visual='normal'] .hud-panel::before,
+html[data-visual='normal'] .hud-panel::after {
+  display: none;
+}
+
+html[data-visual='normal'] .as-modal.as-hud-frame--modal {
+  overflow: hidden;
+  color: var(--as-text);
+  background: var(--as-bg-elevated);
+  border: 1px solid var(--as-border-secondary);
+  border-radius: 8px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+}
+
+html[data-visual='normal'] .as-modal.as-hud-frame--modal::before,
+html[data-visual='normal'] .as-modal.as-hud-frame--modal::after,
+html[data-visual='normal'] .as-hud-modal__chrome,
+html[data-visual='normal'] .as-hud-frame--modal .as-modal__title::before,
+html[data-visual='normal'] .as-hud-frame--modal .as-modal__title::after {
+  display: none;
+}
+
+html[data-visual='normal'] .as-hud-frame--modal .as-modal__head {
+  justify-content: flex-start;
+  min-height: 52px;
+  padding: 14px 20px;
+  background: transparent;
+  border-color: var(--as-border-secondary);
+}
+
+html[data-visual='normal'] .as-hud-frame--modal .as-modal__title {
+  color: var(--as-text);
+  font-size: 16px;
+  letter-spacing: 0;
+  text-align: left;
+  text-shadow: none;
+}
+
+html[data-visual='normal'] .as-hud-frame--modal .as-modal__close {
+  color: var(--as-text-secondary);
+}
+
+html[data-visual='normal'] .as-hud-frame--modal .as-modal__body {
+  padding: 20px 24px;
+}
+
+html[data-visual='normal'] .as-hud-frame--modal .as-modal__footer {
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 10px 16px;
+  border-color: var(--as-border-secondary);
+}
+
+html[data-visual='normal'] .as-hud-frame--modal .as-btn {
+  min-width: auto;
+  height: 32px;
+  color: var(--as-text);
+  background: var(--as-bg-elevated);
+  border-color: var(--as-border);
+  border-radius: 6px;
+  clip-path: none;
+  box-shadow: none;
+}
+
+html[data-visual='normal'] .as-hud-frame--modal .as-btn:hover,
+html[data-visual='normal'] .as-hud-frame--modal .as-btn--primary {
+  color: #ffffff;
+  background: #1677ff;
+  border-color: #1677ff;
+  box-shadow: none;
 }

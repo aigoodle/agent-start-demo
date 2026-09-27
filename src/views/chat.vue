@@ -10,7 +10,7 @@ const agentId = computed(() => String(route.params.id ?? ''))
 </script>
 
 <template>
-  <div class="view-page chat-view">
+  <div class="view-fill chat-view">
     <div class="chat-topbar">
       <button type="button" class="chat-back" @click="router.push({ name: 'AgentApps' })">
         ‹ 返回应用列表
@@ -65,6 +65,9 @@ const agentId = computed(() => String(route.params.id ?? ''))
 }
 
 .chat-host {
-  min-height: calc(100vh - 148px);
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
 }
 </style>

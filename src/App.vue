@@ -6,6 +6,7 @@ import { SearchOutlined } from '@ant-design/icons-vue'
 
 import HudBackground from './components/HudBackground.vue'
 import ThemeToggle from './components/ThemeToggle.vue'
+import VisualModeToggle from './components/VisualModeToggle.vue'
 import { menuGroups } from './router'
 
 const route = useRoute()
@@ -149,6 +150,7 @@ function isActive(path: string, activePath?: string): boolean {
         </div>
 
         <ThemeToggle class="hud-topbar-toggle" />
+        <VisualModeToggle class="hud-topbar-toggle" />
       </header>
 
       <main class="hud-content">
@@ -168,12 +170,14 @@ function isActive(path: string, activePath?: string): boolean {
 /* ------------------------------------------------------------------ */
 .hud-root {
   display: flex;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
 }
 
 .hud-sidebar {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -185,15 +189,19 @@ function isActive(path: string, activePath?: string): boolean {
 }
 
 .hud-main {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex: 1;
   flex-direction: column;
   min-width: 0;
+  min-height: 0;
 }
 
 .hud-content {
   position: relative;
   flex: 1;
+  min-width: 0;
   min-height: 0;
   padding: 14px 16px 16px;
   overflow: auto;
@@ -468,6 +476,61 @@ function isActive(path: string, activePath?: string): boolean {
 
 .hud-topbar-toggle {
   margin-left: 4px;
+}
+
+/* ------------------------------------------------------------------ */
+/* 紧凑窗口：侧栏收为图标轨，避免主内容被固定侧栏挤出横向滚动条             */
+/* ------------------------------------------------------------------ */
+@media (max-width: 900px) {
+  .hud-sidebar {
+    width: 72px;
+  }
+
+  .hud-logo {
+    justify-content: center;
+    padding-inline: 8px;
+  }
+
+  .hud-logo-text,
+  .hud-nav-title,
+  .hud-nav-item span {
+    display: none;
+  }
+
+  .hud-nav {
+    padding-inline: 8px;
+  }
+
+  .hud-nav-item {
+    justify-content: center;
+    padding-inline: 8px;
+  }
+
+  .hud-sidebar-foot {
+    justify-content: center;
+    padding-inline: 8px;
+    font-size: 0;
+  }
+
+  .hud-search {
+    width: min(220px, 32vw);
+  }
+}
+
+@media (max-width: 640px) {
+  .hud-sidebar {
+    width: 58px;
+  }
+
+  .hud-logo-mark {
+    width: 34px;
+    height: 34px;
+  }
+
+  .hud-search,
+  .hud-clock {
+    display: none;
+  }
 }
 
 /* ------------------------------------------------------------------ */
