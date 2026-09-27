@@ -905,6 +905,11 @@ html[data-theme='light'] .hud-panel::after {
   --hud-frame-cut: 12px;
 }
 
+/* 外围装饰线需要越过面板盒子 2px；仅放开 HUD 面板，不影响普通容器。 */
+.hud-panel.hud-embed {
+  overflow: visible;
+}
+
 .hud-panel::before {
   inset: 0;
   z-index: 2;
@@ -938,69 +943,82 @@ html[data-theme='light'] .hud-panel::after {
 }
 
 .hud-panel::after {
-  inset: 0;
+  /* 扩出 2px，给外围加粗线独立空间，不占用面板内容区 */
+  inset: -2px;
   z-index: 3;
   background:
     /*
-     * 四条斜边单独加宽：中心约 2.8px 实线，外侧各带一层柔光。
+     * 四条斜边：中心约 2px 实线，外侧只保留极窄柔光。
      * 这几层必须放在横竖光带之前，才能让切角成为视觉最亮点。
      */
     linear-gradient(
       -45deg,
-      transparent 27%,
-      rgba(12, 240, 255, 0.26) 33%,
-      var(--hud-frame-hot) 38% 62%,
-      rgba(12, 240, 255, 0.26) 67%,
-      transparent 73%
-    ) 0 0 / var(--hud-frame-cut) var(--hud-frame-cut) no-repeat,
+      transparent 36%,
+      rgba(12, 240, 255, 0.22) 41%,
+      var(--hud-frame-hot) 44% 56%,
+      rgba(12, 240, 255, 0.22) 59%,
+      transparent 64%
+    ) 0 0 / calc(var(--hud-frame-cut) + 4px) calc(var(--hud-frame-cut) + 4px) no-repeat,
     linear-gradient(
       45deg,
-      transparent 27%,
-      rgba(12, 240, 255, 0.26) 33%,
-      var(--hud-frame-hot) 38% 62%,
-      rgba(12, 240, 255, 0.26) 67%,
-      transparent 73%
-    ) 100% 0 / var(--hud-frame-cut) var(--hud-frame-cut) no-repeat,
+      transparent 36%,
+      rgba(12, 240, 255, 0.22) 41%,
+      var(--hud-frame-hot) 44% 56%,
+      rgba(12, 240, 255, 0.22) 59%,
+      transparent 64%
+    ) 100% 0 / calc(var(--hud-frame-cut) + 4px) calc(var(--hud-frame-cut) + 4px) no-repeat,
     linear-gradient(
       45deg,
-      transparent 27%,
-      rgba(12, 240, 255, 0.26) 33%,
-      var(--hud-frame-hot) 38% 62%,
-      rgba(12, 240, 255, 0.26) 67%,
-      transparent 73%
-    ) 0 100% / var(--hud-frame-cut) var(--hud-frame-cut) no-repeat,
+      transparent 36%,
+      rgba(12, 240, 255, 0.22) 41%,
+      var(--hud-frame-hot) 44% 56%,
+      rgba(12, 240, 255, 0.22) 59%,
+      transparent 64%
+    ) 0 100% / calc(var(--hud-frame-cut) + 4px) calc(var(--hud-frame-cut) + 4px) no-repeat,
     linear-gradient(
       -45deg,
-      transparent 27%,
-      rgba(12, 240, 255, 0.26) 33%,
-      var(--hud-frame-hot) 38% 62%,
-      rgba(12, 240, 255, 0.26) 67%,
-      transparent 73%
-    ) 100% 100% / var(--hud-frame-cut) var(--hud-frame-cut) no-repeat,
-    /* 水平高亮：从斜角端点向面板中部自然淡出 */
-    linear-gradient(90deg, var(--hud-frame-hot), transparent)
-      var(--hud-frame-cut) 0 / 48px 2px no-repeat,
-    linear-gradient(270deg, var(--hud-frame-hot), transparent)
-      calc(100% - var(--hud-frame-cut)) 0 / 48px 2px no-repeat,
-    linear-gradient(90deg, var(--hud-frame-hot), transparent)
-      var(--hud-frame-cut) 100% / 48px 2px no-repeat,
-    linear-gradient(270deg, var(--hud-frame-hot), transparent)
-      calc(100% - var(--hud-frame-cut)) 100% / 48px 2px no-repeat,
-    /* 垂直高亮：长度略短，避免角部显得笨重 */
-    linear-gradient(180deg, var(--hud-frame-hot), transparent)
-      0 var(--hud-frame-cut) / 2px 42px no-repeat,
-    linear-gradient(180deg, var(--hud-frame-hot), transparent)
-      100% var(--hud-frame-cut) / 2px 42px no-repeat,
-    linear-gradient(0deg, var(--hud-frame-hot), transparent)
-      0 calc(100% - var(--hud-frame-cut)) / 2px 42px no-repeat,
-    linear-gradient(0deg, var(--hud-frame-hot), transparent)
-      100% calc(100% - var(--hud-frame-cut)) / 2px 42px no-repeat,
-    /* 紧贴折角的小范围光晕，不污染整条边 */
-    radial-gradient(18px 18px at 8px 8px, var(--hud-frame-glow), transparent 72%),
-    radial-gradient(18px 18px at calc(100% - 8px) 8px, var(--hud-frame-glow), transparent 72%),
-    radial-gradient(18px 18px at 8px calc(100% - 8px), var(--hud-frame-glow), transparent 72%),
-    radial-gradient(18px 18px at calc(100% - 8px) calc(100% - 8px), var(--hud-frame-glow), transparent 72%);
-  filter: drop-shadow(0 0 4px var(--hud-frame-glow));
+      transparent 36%,
+      rgba(12, 240, 255, 0.22) 41%,
+      var(--hud-frame-hot) 44% 56%,
+      rgba(12, 240, 255, 0.22) 59%,
+      transparent 64%
+    ) 100% 100% / calc(var(--hud-frame-cut) + 4px) calc(var(--hud-frame-cut) + 4px) no-repeat,
+    /* 横向：上限 100/50px；窄面板自动收缩到边长的 20%/10% */
+    linear-gradient(var(--hud-frame-hot), var(--hud-frame-hot))
+      calc(var(--hud-frame-cut) + 2px) 2px / min(100px, 20%) 1px no-repeat,
+    linear-gradient(var(--hud-frame-hot), var(--hud-frame-hot))
+      calc(var(--hud-frame-cut) + 2px) 0 / min(50px, 10%) 2px no-repeat,
+    linear-gradient(var(--hud-frame-hot), var(--hud-frame-hot))
+      calc(100% - var(--hud-frame-cut) - 2px) 2px / min(100px, 20%) 1px no-repeat,
+    linear-gradient(var(--hud-frame-hot), var(--hud-frame-hot))
+      calc(100% - var(--hud-frame-cut) - 2px) 0 / min(50px, 10%) 2px no-repeat,
+    linear-gradient(var(--hud-frame-hot), var(--hud-frame-hot))
+      calc(var(--hud-frame-cut) + 2px) calc(100% - 2px) / min(100px, 20%) 1px no-repeat,
+    linear-gradient(var(--hud-frame-hot), var(--hud-frame-hot))
+      calc(var(--hud-frame-cut) + 2px) 100% / min(50px, 10%) 2px no-repeat,
+    linear-gradient(var(--hud-frame-hot), var(--hud-frame-hot))
+      calc(100% - var(--hud-frame-cut) - 2px) calc(100% - 2px) / min(100px, 20%) 1px no-repeat,
+    linear-gradient(var(--hud-frame-hot), var(--hud-frame-hot))
+      calc(100% - var(--hud-frame-cut) - 2px) 100% / min(50px, 10%) 2px no-repeat,
+    /* 纵向按面板高度使用相同的 20%/10% 自适应比例 */
+    linear-gradient(var(--hud-frame-hot), var(--hud-frame-hot))
+      2px calc(var(--hud-frame-cut) + 2px) / 1px min(100px, 20%) no-repeat,
+    linear-gradient(var(--hud-frame-hot), var(--hud-frame-hot))
+      0 calc(var(--hud-frame-cut) + 2px) / 2px min(50px, 10%) no-repeat,
+    linear-gradient(var(--hud-frame-hot), var(--hud-frame-hot))
+      calc(100% - 2px) calc(var(--hud-frame-cut) + 2px) / 1px min(100px, 20%) no-repeat,
+    linear-gradient(var(--hud-frame-hot), var(--hud-frame-hot))
+      100% calc(var(--hud-frame-cut) + 2px) / 2px min(50px, 10%) no-repeat,
+    linear-gradient(var(--hud-frame-hot), var(--hud-frame-hot))
+      2px calc(100% - var(--hud-frame-cut) - 2px) / 1px min(100px, 20%) no-repeat,
+    linear-gradient(var(--hud-frame-hot), var(--hud-frame-hot))
+      0 calc(100% - var(--hud-frame-cut) - 2px) / 2px min(50px, 10%) no-repeat,
+    linear-gradient(var(--hud-frame-hot), var(--hud-frame-hot))
+      calc(100% - 2px) calc(100% - var(--hud-frame-cut) - 2px) / 1px min(100px, 20%) no-repeat,
+    linear-gradient(var(--hud-frame-hot), var(--hud-frame-hot))
+      100% calc(100% - var(--hud-frame-cut) - 2px) / 2px min(50px, 10%) no-repeat;
+  /* 只给线条加外发光，不再绘制四角径向背景光斑 */
+  filter: drop-shadow(0 0 3px var(--hud-frame-glow));
   animation: hud-panel-breathe-band 4.5s ease-in-out infinite;
 }
 
@@ -1013,4 +1031,243 @@ html[data-theme='light'] .hud-panel {
 html[data-theme='light'] .hud-panel::before,
 html[data-theme='light'] .hud-panel::after {
   animation: none;
+}
+
+/* ========================================================================
+ * 8. Component-library HUD hooks: Modal skin
+ *
+ * `vue-agent-start` only emits these class hooks and decorative nodes. The
+ * concrete visual skin belongs to the host application so themes can replace
+ * it without changing the component package.
+ * ======================================================================== */
+.as-modal.as-hud-frame--modal {
+  --as-hud-modal-cut: 18px;
+  --as-hud-modal-gap: 8px;
+  --as-hud-modal-arm: min(100px, 18vw);
+  --as-hud-modal-outer-cut: calc(var(--as-hud-modal-cut) + var(--as-hud-modal-gap));
+  --as-hud-modal-joint: calc(var(--as-hud-modal-outer-cut) + var(--as-hud-modal-arm));
+  --as-hud-modal-line: rgba(12, 218, 255, 0.72);
+  --as-hud-modal-hot: rgba(112, 246, 255, 0.98);
+  --as-hud-modal-glow: rgba(0, 211, 255, 0.48);
+  position: relative;
+  isolation: isolate;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  color: #d9f5ff;
+  background: transparent;
+  box-shadow: none;
+}
+
+.as-modal.as-hud-frame--modal::before,
+.as-modal.as-hud-frame--modal::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.as-modal.as-hud-frame--modal::before {
+  z-index: 0;
+  clip-path: polygon(
+    var(--as-hud-modal-cut) 0,
+    calc(100% - var(--as-hud-modal-cut)) 0,
+    100% var(--as-hud-modal-cut),
+    100% calc(100% - var(--as-hud-modal-cut)),
+    calc(100% - var(--as-hud-modal-cut)) 100%,
+    var(--as-hud-modal-cut) 100%,
+    0 calc(100% - var(--as-hud-modal-cut)),
+    0 var(--as-hud-modal-cut)
+  );
+  background:
+    linear-gradient(180deg, rgba(9, 55, 91, 0.24), transparent 28%),
+    radial-gradient(circle at 50% 0, rgba(0, 207, 255, 0.16), transparent 42%),
+    rgba(3, 25, 49, 0.96);
+  box-shadow: inset 0 0 42px rgba(0, 141, 213, 0.1);
+  filter: drop-shadow(0 0 18px rgba(0, 179, 255, 0.2));
+}
+
+/* Complete inner frame. The four diagonal layers restore the original cuts;
+   they are 8px away from the separate outer diagonals below. */
+.as-modal.as-hud-frame--modal::after {
+  z-index: 3;
+  background:
+    linear-gradient(-45deg, transparent 44%, var(--as-hud-modal-hot) 46% 54%, transparent 56%) 0 0 / 18px 18px no-repeat,
+    linear-gradient(45deg, transparent 44%, var(--as-hud-modal-hot) 46% 54%, transparent 56%) 100% 0 / 18px 18px no-repeat,
+    linear-gradient(45deg, transparent 44%, var(--as-hud-modal-hot) 46% 54%, transparent 56%) 0 100% / 18px 18px no-repeat,
+    linear-gradient(-45deg, transparent 44%, var(--as-hud-modal-hot) 46% 54%, transparent 56%) 100% 100% / 18px 18px no-repeat,
+    linear-gradient(var(--as-hud-modal-line), var(--as-hud-modal-line)) 18px 0 / calc(100% - 36px) 1px no-repeat,
+    linear-gradient(var(--as-hud-modal-line), var(--as-hud-modal-line)) 18px 100% / calc(100% - 36px) 1px no-repeat,
+    linear-gradient(var(--as-hud-modal-line), var(--as-hud-modal-line)) 0 18px / 1px calc(100% - 36px) no-repeat,
+    linear-gradient(var(--as-hud-modal-line), var(--as-hud-modal-line)) 100% 18px / 1px calc(100% - 36px) no-repeat,
+    linear-gradient(90deg, transparent, var(--as-hud-modal-hot), transparent) 50% 100% / min(360px, 42%) 3px no-repeat;
+  filter: drop-shadow(0 0 5px var(--as-hud-modal-glow));
+}
+
+.as-hud-frame--modal > * { position: relative; z-index: 1; }
+.as-hud-frame--modal > .as-hud-modal__chrome {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+/* Outer corner master: gap=8px; the two 8×8 connector diagonals are
+   sqrt(8² + 8²) = 11.31px long and meet the inner horizontal/vertical frame. */
+.as-hud-modal__corner {
+  position: absolute;
+  width: calc(var(--as-hud-modal-joint) + var(--as-hud-modal-gap));
+  height: calc(var(--as-hud-modal-joint) + var(--as-hud-modal-gap));
+  filter: drop-shadow(0 0 5px var(--as-hud-modal-glow));
+}
+.as-hud-modal__corner::before,
+.as-hud-modal__corner::after {
+  content: '';
+  position: absolute;
+  display: block;
+}
+.as-hud-modal__corner::before {
+  inset: 0;
+  background:
+    linear-gradient(var(--as-hud-modal-line), var(--as-hud-modal-line))
+      var(--as-hud-modal-outer-cut) 0 / var(--as-hud-modal-arm) 2px no-repeat,
+    linear-gradient(var(--as-hud-modal-line), var(--as-hud-modal-line))
+      0 var(--as-hud-modal-outer-cut) / 2px var(--as-hud-modal-arm) no-repeat,
+    linear-gradient(-45deg, transparent 45%, var(--as-hud-modal-hot) 46% 54%, transparent 55%)
+      0 0 / var(--as-hud-modal-outer-cut) var(--as-hud-modal-outer-cut) no-repeat,
+    linear-gradient(45deg, transparent 43%, var(--as-hud-modal-hot) 45% 55%, transparent 57%)
+      var(--as-hud-modal-joint) 0 / var(--as-hud-modal-gap) var(--as-hud-modal-gap) no-repeat,
+    linear-gradient(45deg, transparent 43%, var(--as-hud-modal-hot) 45% 55%, transparent 57%)
+      0 var(--as-hud-modal-joint) / var(--as-hud-modal-gap) var(--as-hud-modal-gap) no-repeat;
+}
+.as-hud-modal__corner::after {
+  top: 0;
+  left: 0;
+  width: var(--as-hud-modal-outer-cut);
+  height: var(--as-hud-modal-outer-cut);
+  background: linear-gradient(-45deg, transparent 46%, var(--as-hud-modal-hot) 47% 53%, transparent 54%);
+  filter: drop-shadow(0 0 4px var(--as-hud-modal-glow));
+}
+.as-hud-modal__corner--tl { top: -8px; left: -8px; }
+.as-hud-modal__corner--tr { top: -8px; right: -8px; transform: scaleX(-1); }
+.as-hud-modal__corner--bl { bottom: -8px; left: -8px; transform: scaleY(-1); }
+.as-hud-modal__corner--br { right: -8px; bottom: -8px; transform: scale(-1); }
+
+.as-hud-frame--modal .as-modal__head {
+  justify-content: center;
+  min-height: auto;
+  padding: 16px 56px;
+  border-color: rgba(38, 190, 230, 0.28);
+  background: linear-gradient(90deg, transparent, rgba(10, 76, 112, 0.24) 24% 76%, transparent);
+}
+.as-hud-frame--modal .as-modal__title {
+  position: relative;
+  width: fit-content;
+  color: #9eeeff;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-shadow: 0 0 16px rgba(47, 218, 255, 0.45);
+}
+.as-hud-frame--modal .as-modal__title:empty { width: min(200px, 52vw); }
+
+/* Text-width notch: 8px inset with mirrored 45° ends; no layout height. */
+.as-hud-frame--modal .as-modal__title::before {
+  content: '';
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  width: calc(100% + 32px);
+  height: 8px;
+  transform: translateX(-50%);
+  background:
+    linear-gradient(var(--as-hud-modal-hot), var(--as-hud-modal-hot)) 8px 7px / calc(100% - 16px) 1px no-repeat,
+    linear-gradient(45deg, transparent 44%, var(--as-hud-modal-hot) 46% 54%, transparent 56%) 0 0 / 8px 8px no-repeat,
+    linear-gradient(-45deg, transparent 44%, var(--as-hud-modal-hot) 46% 54%, transparent 56%) 100% 0 / 8px 8px no-repeat;
+  filter: drop-shadow(0 0 5px var(--as-hud-modal-glow));
+}
+.as-hud-frame--modal .as-modal__title::after {
+  content: '';
+  position: absolute;
+  top: -21px;
+  left: 12%;
+  width: 76%;
+  height: 16px;
+  background: radial-gradient(ellipse, rgba(92, 239, 255, 0.42), rgba(0, 203, 255, 0.12) 44%, transparent 72%);
+  filter: blur(4px);
+  pointer-events: none;
+}
+.as-hud-frame--modal .as-modal__close { color: #8adff4; }
+.as-hud-frame--modal .as-modal__body { padding: 24px; }
+.as-hud-frame--modal .as-modal__footer {
+  justify-content: center;
+  gap: clamp(28px, 7vw, 72px);
+  padding: 10px 16px;
+  border-color: rgba(38, 190, 230, 0.18);
+}
+.as-hud-frame--modal .as-btn {
+  min-width: 132px;
+  height: 44px;
+  border-color: rgba(63, 218, 249, 0.7);
+  border-radius: 0;
+  color: #d8f7ff;
+  background: linear-gradient(180deg, rgba(16, 69, 105, 0.82), rgba(3, 30, 56, 0.92));
+  clip-path: polygon(9px 0, calc(100% - 9px) 0, 100% 9px, 100% calc(100% - 9px), calc(100% - 9px) 100%, 9px 100%, 0 calc(100% - 9px), 0 9px);
+}
+.as-hud-frame--modal .as-btn:hover,
+.as-hud-frame--modal .as-btn--primary {
+  border-color: #54e6ff;
+  color: #edfdff;
+  background: linear-gradient(180deg, rgba(16, 104, 151, 0.88), rgba(4, 43, 76, 0.96));
+  box-shadow: 0 0 16px rgba(0, 207, 255, 0.38), inset 0 0 20px rgba(0, 207, 255, 0.16);
+}
+
+html[data-theme='light'] .as-modal.as-hud-frame--modal {
+  --as-hud-modal-line: rgba(0, 132, 190, 0.55);
+  --as-hud-modal-hot: rgba(0, 152, 210, 0.84);
+  --as-hud-modal-glow: rgba(0, 140, 200, 0.2);
+  color: #173b52;
+}
+html[data-theme='light'] .as-modal.as-hud-frame--modal::before {
+  background:
+    linear-gradient(180deg, rgba(216, 244, 255, 0.72), transparent 30%),
+    radial-gradient(circle at 50% 0, rgba(0, 166, 220, 0.12), transparent 42%),
+    rgba(250, 253, 255, 0.98);
+  box-shadow: inset 0 0 34px rgba(0, 117, 170, 0.06);
+  filter: drop-shadow(0 8px 24px rgba(13, 75, 103, 0.14));
+}
+html[data-theme='light'] .as-hud-frame--modal .as-modal__head {
+  border-color: rgba(0, 132, 190, 0.18);
+  background: linear-gradient(90deg, transparent, rgba(205, 241, 255, 0.52) 24% 76%, transparent);
+}
+html[data-theme='light'] .as-hud-frame--modal .as-modal__title {
+  color: #087ca8;
+  text-shadow: 0 0 12px rgba(0, 152, 210, 0.2);
+}
+html[data-theme='light'] .as-hud-frame--modal .as-modal__close { color: #39758f; }
+html[data-theme='light'] .as-hud-frame--modal .as-btn {
+  color: #15506c;
+  background: linear-gradient(180deg, #f8fdff, #e7f6fc);
+}
+html[data-theme='light'] .as-hud-frame--modal .as-btn--primary {
+  color: #fff;
+  background: linear-gradient(180deg, #19a9dc, #087fab);
+}
+
+@media (max-width: 640px) {
+  .as-modal.as-hud-frame--modal {
+    --as-hud-modal-cut: 13px;
+    --as-hud-modal-arm: min(64px, 16vw);
+  }
+  .as-hud-modal__corner { transform: scale(0.82); transform-origin: top left; }
+  .as-hud-modal__corner--tr { transform: scale(-0.82, 0.82); transform-origin: top right; }
+  .as-hud-modal__corner--bl { transform: scale(0.82, -0.82); transform-origin: bottom left; }
+  .as-hud-modal__corner--br { transform: scale(-0.82); transform-origin: bottom right; }
+  .as-hud-frame--modal .as-modal__head { padding: 14px 48px; }
+  .as-hud-frame--modal .as-modal__title::before { top: -14px; }
+  .as-hud-frame--modal .as-modal__title::after { top: -19px; }
+  .as-hud-frame--modal .as-modal__body { padding: 20px; }
+  .as-hud-frame--modal .as-modal__footer { gap: 12px; }
+  .as-hud-frame--modal .as-btn { min-width: 0; flex: 1; }
 }
