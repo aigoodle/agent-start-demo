@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { TriggerManagerApp } from 'vue-agent-start/trigger-hub'
+import DemoPageSurface from '../components/DemoPageSurface.vue'
 </script>
 
 <template>
-  <div class="view-embed hud-panel hud-embed">
+  <DemoPageSurface>
     <TriggerManagerApp />
-  </div>
+  </DemoPageSurface>
 </template>

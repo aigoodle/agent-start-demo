@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { RobotUser } from 'vue-agent-start/channel-hub'
 import { MyRobotsPanel } from 'vue-agent-start/channel-hub'
+import DemoPageSurface from '../components/DemoPageSurface.vue'
 
 /** 演示身份 —— mock 种子里 robot-1 的 ownerId 即 demo-user */
 const demoUser: RobotUser = {
@@ -11,7 +12,7 @@ const demoUser: RobotUser = {
 </script>
 
 <template>
-  <div class="view-embed hud-panel hud-embed">
+  <DemoPageSurface>
     <MyRobotsPanel :user="demoUser" tenant-id="default" />
-  </div>
+  </DemoPageSurface>
 </template>

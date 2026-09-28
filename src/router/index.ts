@@ -4,14 +4,11 @@ import type { RouteRecordRaw } from 'vue-router'
 import {
   ApiOutlined,
   AppstoreOutlined,
-  BlockOutlined,
   CloudServerOutlined,
   DashboardOutlined,
   DatabaseOutlined,
   DeploymentUnitOutlined,
   ExperimentOutlined,
-  PartitionOutlined,
-  RobotOutlined,
   SendOutlined,
   ThunderboltOutlined,
   ToolOutlined,
@@ -50,8 +47,7 @@ export const menuGroups: MenuGroup[] = [
         icon: SendOutlined,
         activePath: '/apps',
         hidden: true,
-      },
-      { path: '/workflow', title: '工作流设计器', icon: PartitionOutlined },
+      }
     ],
   },
   {
@@ -64,8 +60,6 @@ export const menuGroups: MenuGroup[] = [
   {
     group: '生态扩展',
     items: [
-      { path: '/connectors', title: 'Connector 中心', icon: BlockOutlined },
-      { path: '/robots', title: '我的机器人', icon: RobotOutlined },
       { path: '/channels', title: '渠道接入', icon: DeploymentUnitOutlined },
       { path: '/plugins', title: '插件市场', icon: AppstoreOutlined },
       { path: '/mcp', title: 'MCP 服务', icon: ApiOutlined },
@@ -96,12 +90,6 @@ const routes: RouteRecordRaw[] = [
     path: '/apps/:id/chat',
     component: () => import('../views/chat.vue'),
     meta: { title: '对话调试', group: '智能体编排', activePath: '/apps' },
-  },
-  {
-    name: 'WorkflowDesigner',
-    path: '/workflow',
-    component: () => import('../views/workflow.vue'),
-    meta: { title: '工作流设计器', group: '智能体编排' },
   },
   {
     name: 'KnowledgeList',

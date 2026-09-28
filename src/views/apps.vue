@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { AgentAppsPage } from 'vue-agent-start'
+import DemoPageSurface from '../components/DemoPageSurface.vue'
 </script>
 
 <template>
-  <div class="view-embed hud-panel hud-embed">
+  <DemoPageSurface>
     <AgentAppsPage />
-  </div>
+  </DemoPageSurface>
 </template>

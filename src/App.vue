@@ -5,8 +5,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { SearchOutlined } from '@ant-design/icons-vue'
 
 import HudBackground from './components/HudBackground.vue'
+import PreferencesDrawer from './components/PreferencesDrawer.vue'
 import ThemeToggle from './components/ThemeToggle.vue'
-import VisualModeToggle from './components/VisualModeToggle.vue'
 import { menuGroups } from './router'
 
 const route = useRoute()
@@ -150,7 +150,7 @@ function isActive(path: string, activePath?: string): boolean {
         </div>
 
         <ThemeToggle class="hud-topbar-toggle" />
-        <VisualModeToggle class="hud-topbar-toggle" />
+        <PreferencesDrawer class="hud-topbar-toggle" />
       </header>
 
       <main class="hud-content">

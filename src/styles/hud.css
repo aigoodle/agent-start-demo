@@ -727,6 +727,42 @@ html[data-theme='light'] {
   --as-border: rgba(0, 100, 160, 0.22);
   --as-border-secondary: rgba(0, 100, 160, 0.1);
   --as-bg: rgba(244, 248, 252, 0.85);
+
+  /* Knowledge Hub uses its own --kh-* token family. The dark HUD values are
+     declared on :root above, so they must be reset explicitly in light mode
+     just like the shared --as-* tokens used by AgentAppsPage. */
+  --kh-color-primary: #0095cc;
+  --kh-color-primary-strong: #007aa8;
+  --kh-color-primary-soft: rgba(0, 160, 220, 0.08);
+  --kh-color-primary-contrast: #ffffff;
+  --kh-color-primary-outline: rgba(0, 120, 180, 0.22);
+  --kh-color-text-primary: #0f2a3d;
+  --kh-color-text-secondary: #24475c;
+  --kh-color-text-tertiary: #5a7b93;
+  --kh-color-text-muted: #849fb3;
+  --kh-color-text-inverse: #ffffff;
+  --kh-color-surface: rgba(244, 248, 252, 0.85);
+  --kh-color-surface-raised: #ffffff;
+  --kh-color-surface-sunken: #eaf1f8;
+  --kh-color-surface-hover: rgba(0, 140, 200, 0.06);
+  --kh-color-border: rgba(0, 100, 160, 0.16);
+  --kh-color-border-hover: rgba(0, 120, 180, 0.32);
+  --kh-color-border-strong: rgba(0, 120, 180, 0.45);
+  --kh-color-divider: rgba(0, 100, 160, 0.08);
+  --kh-color-success: #16a34a;
+  --kh-color-success-soft: rgba(22, 163, 74, 0.08);
+  --kh-color-warning: #ca8a04;
+  --kh-color-warning-soft: rgba(234, 179, 8, 0.1);
+  --kh-color-danger: #dc2626;
+  --kh-color-danger-soft: rgba(220, 38, 38, 0.08);
+  --kh-color-info: #007aa8;
+  --kh-color-info-soft: rgba(0, 160, 220, 0.08);
+  --kh-input-border: rgba(0, 100, 160, 0.22);
+  --kh-shadow-sm: 0 1px 2px rgba(15, 42, 61, 0.04);
+  --kh-shadow-md: 0 3px 12px rgba(15, 42, 61, 0.06);
+  --kh-shadow-lg: 0 4px 14px rgba(15, 42, 61, 0.08);
+  --kh-shadow-drawer: -6px 0 22px rgba(15, 42, 61, 0.14);
+  --kh-shadow-modal: 0 20px 60px rgba(15, 42, 61, 0.2);
 }
 
 /* HUD 壳：侧边栏 / 顶栏 —— 从深色不透明玻璃换成淡色玻璃 */
@@ -1251,17 +1287,17 @@ html[data-theme='light'] .hud-panel::after {
   padding: 10px 16px;
   border-color: rgba(38, 190, 230, 0.18);
 }
-.as-hud-frame--modal .as-btn {
-  min-width: 132px;
-  height: 44px;
+.as-hud-frame--modal .as-modal__footer .as-btn {
+  min-width: 84px;
+  height: 30px;
   border-color: rgba(63, 218, 249, 0.7);
   border-radius: 0;
   color: #d8f7ff;
   background: linear-gradient(180deg, rgba(16, 69, 105, 0.82), rgba(3, 30, 56, 0.92));
   clip-path: polygon(9px 0, calc(100% - 9px) 0, 100% 9px, 100% calc(100% - 9px), calc(100% - 9px) 100%, 9px 100%, 0 calc(100% - 9px), 0 9px);
 }
-.as-hud-frame--modal .as-btn:hover,
-.as-hud-frame--modal .as-btn--primary {
+.as-hud-frame--modal .as-modal__footer .as-btn:hover,
+.as-hud-frame--modal .as-modal__footer .as-btn--primary {
   border-color: #54e6ff;
   color: #edfdff;
   background: linear-gradient(180deg, rgba(16, 104, 151, 0.88), rgba(4, 43, 76, 0.96));
@@ -1291,11 +1327,11 @@ html[data-theme='light'] .as-hud-frame--modal .as-modal__title {
   text-shadow: 0 0 12px rgba(0, 152, 210, 0.2);
 }
 html[data-theme='light'] .as-hud-frame--modal .as-modal__close { color: #39758f; }
-html[data-theme='light'] .as-hud-frame--modal .as-btn {
+html[data-theme='light'] .as-hud-frame--modal .as-modal__footer .as-btn {
   color: #15506c;
   background: linear-gradient(180deg, #f8fdff, #e7f6fc);
 }
-html[data-theme='light'] .as-hud-frame--modal .as-btn--primary {
+html[data-theme='light'] .as-hud-frame--modal .as-modal__footer .as-btn--primary {
   color: #fff;
   background: linear-gradient(180deg, #19a9dc, #087fab);
 }
@@ -1314,7 +1350,7 @@ html[data-theme='light'] .as-hud-frame--modal .as-btn--primary {
   .as-hud-frame--modal .as-modal__title::after { top: -19px; }
   .as-hud-frame--modal .as-modal__body { padding: 20px; }
   .as-hud-frame--modal .as-modal__footer { gap: 12px; }
-  .as-hud-frame--modal .as-btn { min-width: 0; flex: 1; }
+  .as-hud-frame--modal .as-modal__footer .as-btn { min-width: 0; flex: 1; }
 }
 
 /* ========================================================================
@@ -1590,9 +1626,9 @@ html[data-visual='normal'] .as-hud-frame--modal .as-modal__footer {
   border-color: var(--as-border-secondary);
 }
 
-html[data-visual='normal'] .as-hud-frame--modal .as-btn {
-  min-width: auto;
-  height: 32px;
+html[data-visual='normal'] .as-hud-frame--modal .as-modal__footer .as-btn {
+  min-width: 84px;
+  height: 30px;
   color: var(--as-text);
   background: var(--as-bg-elevated);
   border-color: var(--as-border);
@@ -1601,8 +1637,8 @@ html[data-visual='normal'] .as-hud-frame--modal .as-btn {
   box-shadow: none;
 }
 
-html[data-visual='normal'] .as-hud-frame--modal .as-btn:hover,
-html[data-visual='normal'] .as-hud-frame--modal .as-btn--primary {
+html[data-visual='normal'] .as-hud-frame--modal .as-modal__footer .as-btn:hover,
+html[data-visual='normal'] .as-hud-frame--modal .as-modal__footer .as-btn--primary {
   color: #ffffff;
   background: #1677ff;
   border-color: #1677ff;

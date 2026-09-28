@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { SkillManagerApp } from 'vue-agent-start/skill-hub'
+import DemoPageSurface from '../components/DemoPageSurface.vue'
 </script>
 
 <template>
-  <div class="view-embed hud-panel hud-embed">
+  <DemoPageSurface>
     <SkillManagerApp />
-  </div>
+  </DemoPageSurface>
 </template>

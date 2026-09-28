@@ -1,3 +1,4 @@
+<!--
 <script setup lang="ts">
 import { nextTick, onMounted, ref, shallowRef } from 'vue'
 import { FlowDesigner, NodeConfigCard } from 'vue-agent-start'
@@ -78,7 +79,7 @@ onMounted(async () => {
         <button type="button" class="wf-btn" @click="onValidate">运行校验</button>
       </div>
       <Transition name="hud-fade">
-        <span v-if="toast" class="wf-toast" :class="`wf-toast--${toast.type}`">{{ toast.text }}</span>
+        <span v-if="toast" class="wf-toast" :class="`wf-toast&#45;&#45;${toast.type}`">{{ toast.text }}</span>
       </Transition>
     </div>
 
@@ -125,14 +126,14 @@ onMounted(async () => {
   font-weight: 700;
   letter-spacing: 0.5px;
   color: #04121f;
-  background: linear-gradient(135deg, var(--hud-primary-bright), var(--hud-primary-deep));
+  background: linear-gradient(135deg, var(&#45;&#45;hud-primary-bright), var(&#45;&#45;hud-primary-deep));
   border-radius: 4px;
-  box-shadow: var(--hud-glow);
+  box-shadow: var(&#45;&#45;hud-glow);
 }
 
 .wf-mode {
   font-size: 11px;
-  color: var(--hud-text-muted);
+  color: var(&#45;&#45;hud-text-muted);
 }
 
 .wf-actions {
@@ -144,18 +145,18 @@ onMounted(async () => {
 .wf-btn {
   padding: 4px 12px;
   font-size: 12px;
-  color: var(--hud-text);
+  color: var(&#45;&#45;hud-text);
   background: rgba(0, 150, 220, 0.08);
-  border: 1px solid var(--hud-border);
+  border: 1px solid var(&#45;&#45;hud-border);
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
 }
 .wf-btn:hover {
-  color: var(--hud-primary-bright);
-  border-color: var(--hud-border-strong);
-  background: var(--hud-accent-soft);
-  box-shadow: var(--hud-glow);
+  color: var(&#45;&#45;hud-primary-bright);
+  border-color: var(&#45;&#45;hud-border-strong);
+  background: var(&#45;&#45;hud-accent-soft);
+  box-shadow: var(&#45;&#45;hud-glow);
 }
 
 .wf-toast {
@@ -172,19 +173,19 @@ onMounted(async () => {
   border-radius: 8px;
   backdrop-filter: blur(8px);
 }
-.wf-toast--ok {
+.wf-toast&#45;&#45;ok {
   color: #6ee7a0;
   background: rgba(10, 60, 40, 0.85);
   border: 1px solid rgba(34, 197, 94, 0.45);
   box-shadow: 0 0 12px rgba(34, 197, 94, 0.25);
 }
-.wf-toast--warn {
+.wf-toast&#45;&#45;warn {
   color: #fde68a;
   background: rgba(60, 45, 10, 0.85);
   border: 1px solid rgba(250, 204, 21, 0.45);
   box-shadow: 0 0 12px rgba(250, 204, 21, 0.2);
 }
-.wf-toast--err {
+.wf-toast&#45;&#45;err {
   color: #ff9d9d;
   background: rgba(60, 15, 15, 0.85);
   border: 1px solid rgba(255, 68, 68, 0.5);
@@ -213,10 +214,11 @@ onMounted(async () => {
   flex: none;
   height: 100%;
   overflow: auto;
-  background: var(--hud-panel-bg);
-  border: 1px solid var(--hud-border);
+  background: var(&#45;&#45;hud-panel-bg);
+  border: 1px solid var(&#45;&#45;hud-border);
   border-radius: 12px;
-  box-shadow: var(--hud-glow);
+  box-shadow: var(&#45;&#45;hud-glow);
   backdrop-filter: blur(10px);
 }
 </style>
+-->

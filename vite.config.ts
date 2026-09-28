@@ -12,6 +12,25 @@ import { agentStartMock } from './mock/plugin.js'
  */
 const useMock = (process.env.MOCK ?? 'true') !== 'false'
 
+// vue-agent-start 源码路径（用于开发时直接引用源码，无需重新构建）
+const libRoot = fileURLToPath(new URL('../vue-agent-start', import.meta.url))
+const vueAgentStartSource = `${libRoot}/src/index.ts`
+const vueAgentStartClientSource = `${libRoot}/src/client/index.ts`
+const vueAgentStartProviderSource = `${libRoot}/src/provider-hub/index.ts`
+const vueAgentStartKnowledgeSource = `${libRoot}/src/knowledge-hub/index.ts`
+const vueAgentStartStudioSource = `${libRoot}/src/agent-studio/index.ts`
+const vueAgentStartAgentFlowSource = `${libRoot}/src/agent-flow/index.ts`
+const vueAgentStartConnectorSource = `${libRoot}/src/connector-hub/index.ts`
+const vueAgentStartChannelSource = `${libRoot}/src/channel-hub/index.ts`
+const vueAgentStartPluginSource = `${libRoot}/src/plugin-hub/index.ts`
+const vueAgentStartMcpSource = `${libRoot}/src/mcp-hub/index.ts`
+const vueAgentStartSkillSource = `${libRoot}/src/skill-hub/index.ts`
+const vueAgentStartToolSource = `${libRoot}/src/tool-hub/index.ts`
+const vueAgentStartTriggerSource = `${libRoot}/src/trigger-hub/index.ts`
+const vueAgentStartAigoodleSource = `${libRoot}/src/aigoodle.ts`
+const vueAgentStartStyleSource = `${libRoot}/dist/style.css` // 使用构建后的 CSS（已处理 Tailwind @apply）
+const vueAgentStartFlowSource = `${libRoot}/src/agent-flow`
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [vue(), ...(useMock ? [agentStartMock()] : [])],
@@ -33,6 +52,32 @@ export default defineConfig({
       '@vue-flow/node-resizer',
       'vue-draggable-next',
     ],
+    // 直接解析 vue-agent-start 的源码，无需每次重新构建库
+    // 使用数组格式 + 正则表达式，确保精确匹配
+    alias: [
+      { find: /^vue-agent-start\/style\.css$/, replacement: vueAgentStartStyleSource },
+      { find: /^vue-agent-start\/client$/, replacement: vueAgentStartClientSource },
+      { find: /^vue-agent-start\/provider-hub$/, replacement: vueAgentStartProviderSource },
+      { find: /^vue-agent-start\/knowledge-hub$/, replacement: vueAgentStartKnowledgeSource },
+      { find: /^vue-agent-start\/agent-studio$/, replacement: vueAgentStartStudioSource },
+      { find: /^vue-agent-start\/agent-flow$/, replacement: vueAgentStartAgentFlowSource },
+      { find: /^vue-agent-start\/connector-hub$/, replacement: vueAgentStartConnectorSource },
+      { find: /^vue-agent-start\/channel-hub$/, replacement: vueAgentStartChannelSource },
+      { find: /^vue-agent-start\/plugin-hub$/, replacement: vueAgentStartPluginSource },
+      { find: /^vue-agent-start\/mcp-hub$/, replacement: vueAgentStartMcpSource },
+      { find: /^vue-agent-start\/skill-hub$/, replacement: vueAgentStartSkillSource },
+      { find: /^vue-agent-start\/tool-hub$/, replacement: vueAgentStartToolSource },
+      { find: /^vue-agent-start\/trigger-hub$/, replacement: vueAgentStartTriggerSource },
+      { find: /^vue-agent-start\/aigoodle$/, replacement: vueAgentStartAigoodleSource },
+      { find: /^vue-agent-start$/, replacement: vueAgentStartSource },
+      // vue-agent-start 内部别名（legacy agent-flow 模块使用）
+      { find: /^@\/(.*)$/, replacement: `${vueAgentStartFlowSource}/$1` },
+    ],
+  },
+  optimizeDeps: {
+    // 永不缓存链接的组件库：其源文件必须保留在 Vite 的转换图中，
+    // 这样编辑才能立即触发 HMR，无需重新构建 dist。
+    exclude: ['vue-agent-start'],
   },
   server: {
     fs: {
