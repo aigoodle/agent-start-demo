@@ -54,6 +54,15 @@
   --hud-font-mono:
     'JetBrains Mono', 'Cascadia Code', ui-monospace, SFMono-Regular, Menlo,
     Consolas, monospace;
+
+  /* 结构线规范：hairline 构轮廓，accent 标记关键节点，cut 统一切角。 */
+  --hud-line-hairline: 1px;
+  --hud-line-accent: 2px;
+  --hud-cut-sm: 5px;
+  --hud-cut-md: 9px;
+  --hud-structure-line: color-mix(in srgb, var(--hud-primary) 42%, transparent);
+  --hud-structure-hot: color-mix(in srgb, var(--hud-primary) 78%, white);
+  --hud-structure-soft: color-mix(in srgb, var(--hud-primary) 12%, transparent);
 }
 
 /* ==========================================================================
@@ -281,6 +290,71 @@ html.dark[data-theme='dark'] .dify-flow-designer {
 }
 
 /* --- 弹层：下拉/气泡/模态/抽屉 --- */
+.as-modal__mask,
+.as-drawer__mask {
+  background:
+    radial-gradient(circle at 50% 18%, rgba(0, 174, 255, 0.045), transparent 44%),
+    rgba(1, 9, 20, 0.22);
+  -webkit-backdrop-filter: blur(6px) saturate(112%);
+  backdrop-filter: blur(6px) saturate(112%);
+  opacity: 1;
+  will-change: opacity, backdrop-filter;
+}
+
+/* 蒙板和面板分层过渡，避免 backdrop-filter 首帧建立合成层时慢一拍。 */
+.as-modal-fade-enter-active,
+.as-modal-fade-leave-active,
+.as-drawer-right-enter-active,
+.as-drawer-right-leave-active,
+.as-drawer-left-enter-active,
+.as-drawer-left-leave-active {
+  transition: none;
+}
+
+.as-modal-fade-enter-active .as-modal__mask,
+.as-modal-fade-leave-active .as-modal__mask,
+.as-drawer-right-enter-active .as-drawer__mask,
+.as-drawer-right-leave-active .as-drawer__mask,
+.as-drawer-left-enter-active .as-drawer__mask,
+.as-drawer-left-leave-active .as-drawer__mask {
+  transition: opacity .18s ease-out, backdrop-filter .22s ease-out, -webkit-backdrop-filter .22s ease-out;
+}
+
+.as-modal-fade-enter-active .as-modal,
+.as-modal-fade-leave-active .as-modal {
+  transition: opacity .18s ease-out, transform .2s cubic-bezier(.22, 1, .36, 1);
+}
+
+.as-modal-fade-enter-from .as-modal__mask,
+.as-modal-fade-leave-to .as-modal__mask,
+.as-drawer-right-enter-from .as-drawer__mask,
+.as-drawer-right-leave-to .as-drawer__mask,
+.as-drawer-left-enter-from .as-drawer__mask,
+.as-drawer-left-leave-to .as-drawer__mask {
+  opacity: 0;
+  -webkit-backdrop-filter: blur(0) saturate(100%);
+  backdrop-filter: blur(0) saturate(100%);
+}
+
+.as-modal-fade-enter-from .as-modal,
+.as-modal-fade-leave-to .as-modal {
+  opacity: 0;
+  transform: translateY(-8px) scale(.988);
+}
+
+.as-drawer-right-enter-active .as-drawer,
+.as-drawer-right-leave-active .as-drawer,
+.as-drawer-left-enter-active .as-drawer,
+.as-drawer-left-leave-active .as-drawer {
+  transition: opacity .18s ease-out, transform .22s cubic-bezier(.22, 1, .36, 1);
+}
+.as-drawer-right-enter-from .as-drawer,
+.as-drawer-right-leave-to .as-drawer,
+.as-drawer-left-enter-from .as-drawer,
+.as-drawer-left-leave-to .as-drawer {
+  opacity: 0;
+}
+
 .as-dropdown__panel,
 .as-popover__panel,
 .as-select__dropdown,
@@ -339,6 +413,99 @@ html.dark[data-theme='dark'] .dify-flow-designer {
   background: rgba(0, 204, 255, 0.16);
   color: var(--hud-primary-bright);
   box-shadow: 0 0 10px rgba(0, 204, 255, 0.2);
+}
+
+/* --------------------------------------------------------------------------
+ * 统一结构线：卡片 / 数据容器 / 浮层
+ * 只在科技视觉模式显示；装饰层不参与点击和布局。
+ * -------------------------------------------------------------------------- */
+.as-card,
+.as-table-wrap,
+.as-dropdown__panel,
+.as-popover__panel,
+.as-select__dropdown,
+.as-cascader__dropdown {
+  position: relative;
+  isolation: isolate;
+}
+
+.as-card::before,
+.as-table-wrap::before,
+.as-dropdown__panel::before,
+.as-popover__panel::before,
+.as-select__dropdown::before,
+.as-cascader__dropdown::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, var(--hud-structure-hot), transparent) 9px 0 / min(92px, 28%) var(--hud-line-accent) no-repeat,
+    linear-gradient(90deg, transparent, var(--hud-structure-line)) calc(100% - 76px) 100% / 68px var(--hud-line-hairline) no-repeat,
+    linear-gradient(var(--hud-structure-hot), var(--hud-structure-hot)) 0 9px / var(--hud-line-accent) 22px no-repeat,
+    linear-gradient(var(--hud-structure-line), var(--hud-structure-line)) 100% calc(100% - 31px) / var(--hud-line-hairline) 22px no-repeat,
+    repeating-linear-gradient(90deg, var(--hud-structure-line) 0 3px, transparent 3px 7px) calc(100% - 48px) 7px / 38px 3px no-repeat;
+  opacity: .82;
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--hud-structure-hot) 38%, transparent));
+  transition: opacity .18s ease, filter .18s ease;
+}
+
+.as-card:hover::before,
+.as-table-wrap:focus-within::before,
+.as-dropdown__panel:hover::before,
+.as-popover__panel:hover::before {
+  opacity: 1;
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--hud-structure-hot) 55%, transparent));
+}
+
+/* 标题/页脚分割线采用“短强线 + 长弱线”，降低整条亮线的压迫感。 */
+.as-card__head,
+.as-drawer__footer,
+.as-modal__footer {
+  background-image:
+    linear-gradient(90deg, var(--hud-structure-hot), transparent 110px),
+    linear-gradient(90deg, transparent, var(--hud-structure-soft) 18% 82%, transparent);
+  background-position: left bottom, center bottom;
+  background-size: 132px 1px, 100% 1px;
+  background-repeat: no-repeat;
+}
+
+/* 控件使用同一组小切角；hover/focus 只增强轮廓，不扩大光晕。 */
+.as-btn,
+.as-tag,
+.as-input,
+.as-input-wrap,
+.as-textarea,
+.as-select {
+  clip-path: polygon(
+    var(--hud-cut-sm) 0,
+    100% 0,
+    100% calc(100% - var(--hud-cut-sm)),
+    calc(100% - var(--hud-cut-sm)) 100%,
+    0 100%,
+    0 var(--hud-cut-sm)
+  );
+}
+
+.as-btn {
+  transition: color .16s ease, border-color .16s ease, background-color .16s ease, box-shadow .16s ease;
+}
+.as-btn:not(:disabled):focus-visible {
+  outline: 1px solid var(--hud-structure-hot);
+  outline-offset: 2px;
+}
+
+/* 数据表的列头和行尾加入轻量定位刻度。 */
+.as-table th:first-child,
+.as-table td:first-child { border-left: var(--hud-line-accent) solid transparent; }
+.as-table thead th:first-child { border-left-color: var(--hud-structure-hot); }
+.as-table tbody tr:hover td:first-child { border-left-color: var(--hud-structure-line); }
+
+/* Tabs 底轨由完整实线改为中段弱、激活段强。 */
+.as-tabs__nav {
+  border-bottom-color: transparent;
+  background: linear-gradient(90deg, transparent, var(--hud-structure-soft) 8% 92%, transparent) left bottom / 100% 1px no-repeat;
 }
 
 /* ==========================================================================
@@ -1114,6 +1281,28 @@ html[data-theme='light'] .hud-panel::after {
   animation: none;
 }
 
+html[data-theme='light'] .as-modal__mask,
+html[data-theme='light'] .as-drawer__mask {
+  background:
+    radial-gradient(circle at 50% 16%, rgba(0, 145, 210, 0.04), transparent 46%),
+    rgba(226, 240, 247, 0.24);
+  -webkit-backdrop-filter: blur(6px) saturate(106%);
+  backdrop-filter: blur(6px) saturate(106%);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .as-modal__mask,
+  .as-drawer__mask {
+    background: rgba(1, 9, 20, 0.78);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  html[data-theme='light'] .as-modal__mask,
+  html[data-theme='light'] .as-drawer__mask {
+    background: rgba(226, 240, 247, 0.82);
+  }
+}
+
 /* ========================================================================
  * 8. Component-library HUD hooks: Modal skin
  *
@@ -1234,16 +1423,72 @@ html[data-theme='light'] .hud-panel::after {
 .as-hud-modal__corner--bl { bottom: -8px; left: -8px; transform: scaleY(-1); }
 .as-hud-modal__corner--br { right: -8px; bottom: -8px; transform: scale(-1); }
 
+/* Asymmetric edge instrumentation: segmented rails, calibration ticks and a
+   compact lower docking shape keep the modal frame from reading as one line. */
+.as-hud-modal__rail {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+  filter: drop-shadow(0 0 4px var(--as-hud-modal-glow));
+}
+.as-hud-modal__rail--top,
+.as-hud-modal__rail--bottom {
+  left: 54px;
+  right: 54px;
+  height: 12px;
+  background:
+    linear-gradient(90deg, var(--as-hud-modal-hot), var(--as-hud-modal-hot)) 0 0 / 22% 2px no-repeat,
+    repeating-linear-gradient(90deg, var(--as-hud-modal-line) 0 3px, transparent 3px 8px) 27% 0 / 9% 3px no-repeat,
+    repeating-linear-gradient(90deg, var(--as-hud-modal-line) 0 3px, transparent 3px 8px) 64% 0 / 9% 3px no-repeat,
+    linear-gradient(90deg, var(--as-hud-modal-hot), var(--as-hud-modal-hot)) 78% 0 / 22% 2px no-repeat;
+}
+.as-hud-modal__rail--top { top: -5px; }
+.as-hud-modal__rail--bottom { bottom: -5px; transform: rotate(180deg); }
+.as-hud-modal__rail--bottom::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 37%;
+  width: 26%;
+  height: 10px;
+  border-top: 2px solid var(--as-hud-modal-hot);
+  border-right: 1px solid var(--as-hud-modal-line);
+  border-left: 1px solid var(--as-hud-modal-line);
+  clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 100%, 72% 100%, 66% 5px, 34% 5px, 28% 100%, 0 100%);
+}
+.as-hud-modal__rail--left,
+.as-hud-modal__rail--right {
+  top: 72px;
+  bottom: 58px;
+  width: 9px;
+  background:
+    linear-gradient(var(--as-hud-modal-hot), var(--as-hud-modal-hot)) 0 0 / 2px 18% no-repeat,
+    repeating-linear-gradient(0deg, var(--as-hud-modal-line) 0 3px, transparent 3px 7px) 0 27% / 4px 13% no-repeat,
+    linear-gradient(var(--as-hud-modal-line), var(--as-hud-modal-line)) 0 48% / 1px 26% no-repeat,
+    linear-gradient(var(--as-hud-modal-hot), var(--as-hud-modal-hot)) 0 84% / 3px 13% no-repeat;
+}
+.as-hud-modal__rail--left { left: -5px; }
+.as-hud-modal__rail--right { right: -5px; transform: rotate(180deg); }
+
 .as-hud-frame--modal .as-modal__head {
   justify-content: center;
-  min-height: auto;
+  min-height: 56px;
   padding: 16px 56px;
+  overflow: hidden;
   border-color: rgba(38, 190, 230, 0.28);
   background: linear-gradient(90deg, transparent, rgba(10, 76, 112, 0.24) 24% 76%, transparent);
 }
 .as-hud-frame--modal .as-modal__title {
-  position: relative;
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  isolation: isolate;
   width: fit-content;
+  height: 32px;
+  max-width: calc(100% - 136px);
+  box-sizing: border-box;
+  padding: 0;
   color: #9eeeff;
   font-size: 18px;
   font-weight: 700;
@@ -1251,32 +1496,38 @@ html[data-theme='light'] .hud-panel::after {
   text-align: center;
   text-shadow: 0 0 16px rgba(47, 218, 255, 0.45);
 }
-.as-hud-frame--modal .as-modal__title:empty { width: min(200px, 52vw); }
+.as-hud-frame--modal .as-modal__title-text {
+  position: relative;
+  z-index: 1;
+  display: block;
+  max-width: 100%;
+  padding: 3px 18px;
+  overflow: hidden;
+  line-height: 26px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.as-hud-frame--modal .as-modal__title-text:empty { width: min(200px, 52vw); }
 
-/* Text-width notch: 8px inset with mirrored 45° ends; no layout height. */
+/* Closed title capsule with clipped 45° ends. The outer hot layer is only
+   one pixel larger than the inner surface, so it reads as linework. */
 .as-hud-frame--modal .as-modal__title::before {
   content: '';
   position: absolute;
-  top: -16px;
-  left: 50%;
-  width: calc(100% + 32px);
-  height: 8px;
-  transform: translateX(-50%);
-  background:
-    linear-gradient(var(--as-hud-modal-hot), var(--as-hud-modal-hot)) 8px 7px / calc(100% - 16px) 1px no-repeat,
-    linear-gradient(45deg, transparent 44%, var(--as-hud-modal-hot) 46% 54%, transparent 56%) 0 0 / 8px 8px no-repeat,
-    linear-gradient(-45deg, transparent 44%, var(--as-hud-modal-hot) 46% 54%, transparent 56%) 100% 0 / 8px 8px no-repeat;
+  inset: -5px -28px;
+  z-index: -2;
+  background: var(--as-hud-modal-hot);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 100%, 14px 100%);
   filter: drop-shadow(0 0 5px var(--as-hud-modal-glow));
 }
 .as-hud-frame--modal .as-modal__title::after {
   content: '';
   position: absolute;
-  top: -21px;
-  left: 12%;
-  width: 76%;
-  height: 16px;
-  background: radial-gradient(ellipse, rgba(92, 239, 255, 0.42), rgba(0, 203, 255, 0.12) 44%, transparent 72%);
-  filter: blur(4px);
+  inset: -4px -27px;
+  z-index: -1;
+  background: color-mix(in srgb, var(--as-bg) 91%, transparent);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 13px) 100%, 13px 100%);
+  box-shadow: inset 0 -3px 0 color-mix(in srgb, var(--as-hud-modal-line) 30%, transparent);
   pointer-events: none;
 }
 .as-hud-frame--modal .as-modal__close { color: #8adff4; }
@@ -1336,6 +1587,186 @@ html[data-theme='light'] .as-hud-frame--modal .as-modal__footer .as-btn--primary
   background: linear-gradient(180deg, #19a9dc, #087fab);
 }
 
+/* Shared Drawer HUD frame.  Drawer.ts owns these hooks so every product
+   drawer (apps, knowledge, MCP, channels...) receives the same chrome. */
+.as-drawer.as-hud-frame--drawer {
+  --as-hud-drawer-line: var(--as-hud-modal-line, rgba(12, 218, 255, 0.72));
+  --as-hud-drawer-hot: var(--as-hud-modal-hot, rgba(112, 246, 255, 0.98));
+  --as-hud-drawer-glow: var(--as-hud-modal-glow, rgba(0, 211, 255, 0.48));
+  isolation: isolate;
+  background: var(--hud-surface);
+  border: 0;
+  border-radius: 0;
+  box-shadow: -10px 0 32px rgba(0, 179, 255, 0.16);
+}
+.as-drawer.as-hud-frame--drawer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background:
+    linear-gradient(-45deg, transparent 44%, var(--as-hud-drawer-hot) 46% 54%, transparent 56%) 0 0 / 14px 14px no-repeat,
+    linear-gradient(45deg, transparent 44%, var(--as-hud-drawer-hot) 46% 54%, transparent 56%) 100% 0 / 14px 14px no-repeat,
+    linear-gradient(45deg, transparent 44%, var(--as-hud-drawer-hot) 46% 54%, transparent 56%) 0 100% / 14px 14px no-repeat,
+    linear-gradient(-45deg, transparent 44%, var(--as-hud-drawer-hot) 46% 54%, transparent 56%) 100% 100% / 14px 14px no-repeat,
+    linear-gradient(var(--as-hud-drawer-line), var(--as-hud-drawer-line)) 14px 0 / calc(100% - 28px) 1px no-repeat,
+    linear-gradient(var(--as-hud-drawer-line), var(--as-hud-drawer-line)) 14px 100% / calc(100% - 28px) 1px no-repeat,
+    linear-gradient(var(--as-hud-drawer-line), var(--as-hud-drawer-line)) 0 14px / 1px calc(100% - 28px) no-repeat,
+    linear-gradient(var(--as-hud-drawer-line), var(--as-hud-drawer-line)) 100% 14px / 1px calc(100% - 28px) no-repeat;
+  filter: drop-shadow(0 0 5px var(--as-hud-drawer-glow));
+}
+.as-hud-frame--drawer > * { position: relative; z-index: 1; }
+.as-hud-frame--drawer > .as-hud-drawer__chrome {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+.as-hud-drawer__corner {
+  position: absolute;
+  width: 46px;
+  height: 46px;
+  border-color: var(--as-hud-drawer-hot);
+  filter: drop-shadow(0 0 4px var(--as-hud-drawer-glow));
+}
+.as-hud-drawer__corner--tl { top: 6px; left: 6px; border-top: 2px solid; border-left: 2px solid; }
+.as-hud-drawer__corner--tr { top: 6px; right: 6px; border-top: 2px solid; border-right: 2px solid; }
+.as-hud-drawer__corner--bl { bottom: 6px; left: 6px; border-bottom: 2px solid; border-left: 2px solid; }
+.as-hud-drawer__corner--br { right: 6px; bottom: 6px; border-right: 2px solid; border-bottom: 2px solid; }
+.as-hud-drawer__corner::before,
+.as-hud-drawer__corner::after {
+  content: '';
+  position: absolute;
+  background: var(--as-hud-drawer-hot);
+  box-shadow: 0 0 8px var(--as-hud-drawer-glow);
+}
+.as-hud-drawer__corner::before { width: 18px; height: 3px; }
+.as-hud-drawer__corner::after { width: 3px; height: 18px; }
+.as-hud-drawer__corner--tl::before { top: 7px; left: 11px; }
+.as-hud-drawer__corner--tl::after { top: 11px; left: 7px; }
+.as-hud-drawer__corner--tr::before { top: 7px; right: 11px; }
+.as-hud-drawer__corner--tr::after { top: 11px; right: 7px; }
+.as-hud-drawer__corner--bl::before { bottom: 7px; left: 11px; }
+.as-hud-drawer__corner--bl::after { bottom: 11px; left: 7px; }
+.as-hud-drawer__corner--br::before { right: 11px; bottom: 7px; }
+.as-hud-drawer__corner--br::after { right: 7px; bottom: 11px; }
+
+/* Broken edge rails borrow the reference's asymmetric instrument-panel
+   rhythm: long line, short hot segment, gap, then calibration ticks. */
+.as-hud-drawer__rail {
+  position: absolute;
+  display: block;
+  filter: drop-shadow(0 0 4px var(--as-hud-drawer-glow));
+}
+.as-hud-drawer__rail--top,
+.as-hud-drawer__rail--bottom {
+  left: 64px;
+  right: 64px;
+  height: 13px;
+  background:
+    linear-gradient(90deg, var(--as-hud-drawer-hot), var(--as-hud-drawer-hot)) 0 0 / 18% 2px no-repeat,
+    linear-gradient(90deg, var(--as-hud-drawer-line), var(--as-hud-drawer-line)) 24% 0 / 38% 1px no-repeat,
+    linear-gradient(90deg, var(--as-hud-drawer-hot), var(--as-hud-drawer-hot)) 69% 0 / 19% 2px no-repeat,
+    repeating-linear-gradient(90deg, var(--as-hud-drawer-line) 0 3px, transparent 3px 8px) 94% 0 / 6% 4px no-repeat;
+}
+.as-hud-drawer__rail--top { top: 5px; }
+.as-hud-drawer__rail--bottom { bottom: 5px; transform: rotate(180deg); }
+.as-hud-drawer__rail--top::before,
+.as-hud-drawer__rail--bottom::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 43%;
+  width: clamp(72px, 16%, 180px);
+  height: 10px;
+  border-top: 2px solid var(--as-hud-drawer-hot);
+  border-right: 2px solid var(--as-hud-drawer-hot);
+  border-left: 2px solid var(--as-hud-drawer-hot);
+  clip-path: polygon(9px 0, calc(100% - 9px) 0, 100% 100%, 68% 100%, 63% 5px, 37% 5px, 32% 100%, 0 100%);
+}
+.as-hud-drawer__rail--left,
+.as-hud-drawer__rail--right {
+  top: 88px;
+  bottom: 64px;
+  width: 10px;
+  background:
+    linear-gradient(var(--as-hud-drawer-hot), var(--as-hud-drawer-hot)) 0 0 / 2px 17% no-repeat,
+    repeating-linear-gradient(0deg, var(--as-hud-drawer-line) 0 3px, transparent 3px 7px) 0 23% / 4px 10% no-repeat,
+    linear-gradient(var(--as-hud-drawer-line), var(--as-hud-drawer-line)) 0 39% / 1px 34% no-repeat,
+    linear-gradient(var(--as-hud-drawer-hot), var(--as-hud-drawer-hot)) 0 82% / 3px 12% no-repeat;
+}
+.as-hud-drawer__rail--left { left: 5px; }
+.as-hud-drawer__rail--right { right: 5px; transform: rotate(180deg); }
+.as-hud-frame--drawer .as-drawer__header {
+  justify-content: flex-start;
+  min-height: 62px;
+  padding: 10px 20px;
+  border-color: rgba(38, 190, 230, 0.28);
+  background: var(--hud-surface);
+}
+.as-hud-frame--drawer .as-drawer__title {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  isolation: isolate;
+  flex: 0 1 auto;
+  width: fit-content;
+  height: 100%;
+  max-width: min(68%, 680px);
+  --as-hud-drawer-title-slope: 36px;
+  margin: 0;
+  padding: 0 20px;
+  color: #9eeeff;
+  letter-spacing: .06em;
+  text-shadow: 0 0 14px rgba(47, 218, 255, .42);
+}
+.as-hud-frame--drawer .as-drawer__title::before,
+.as-hud-frame--drawer .as-drawer__title::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  pointer-events: none;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    calc(100% - var(--as-hud-drawer-title-slope)) 100%,
+    0 100%
+  );
+}
+.as-hud-frame--drawer .as-drawer__title::before {
+  inset: 0 calc(0px - var(--as-hud-drawer-title-slope)) 0 0;
+  z-index: -2;
+  background: var(--as-hud-drawer-hot);
+  filter: drop-shadow(0 0 5px var(--as-hud-drawer-glow));
+}
+.as-hud-frame--drawer .as-drawer__title::after {
+  inset: 1px calc(2px - var(--as-hud-drawer-title-slope)) 2px 0;
+  z-index: -1;
+  background: var(--hud-surface);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    calc(100% - var(--as-hud-drawer-title-slope) + 2px) 100%,
+    0 100%
+  );
+}
+.as-hud-frame--drawer .as-drawer__title > * { position: relative; z-index: 1; }
+.as-hud-frame--drawer .as-drawer__extra { margin-left: auto; }
+
+html[data-theme='light'] .as-drawer.as-hud-frame--drawer {
+  --as-hud-drawer-line: var(--as-hud-modal-line, rgba(0, 132, 190, .55));
+  --as-hud-drawer-hot: var(--as-hud-modal-hot, rgba(0, 152, 210, .84));
+  --as-hud-drawer-glow: var(--as-hud-modal-glow, rgba(0, 140, 200, .2));
+  box-shadow: -8px 0 26px rgba(13, 75, 103, .14);
+}
+html[data-theme='light'] .as-hud-frame--drawer .as-drawer__header {
+  background: var(--hud-surface);
+}
+html[data-theme='light'] .as-hud-frame--drawer .as-drawer__title { color: #087ca8; text-shadow: none; }
+
 @media (max-width: 640px) {
   .as-modal.as-hud-frame--modal {
     --as-hud-modal-cut: 13px;
@@ -1346,8 +1777,9 @@ html[data-theme='light'] .as-hud-frame--modal .as-modal__footer .as-btn--primary
   .as-hud-modal__corner--bl { transform: scale(0.82, -0.82); transform-origin: bottom left; }
   .as-hud-modal__corner--br { transform: scale(-0.82); transform-origin: bottom right; }
   .as-hud-frame--modal .as-modal__head { padding: 14px 48px; }
-  .as-hud-frame--modal .as-modal__title::before { top: -14px; }
-  .as-hud-frame--modal .as-modal__title::after { top: -19px; }
+  .as-hud-frame--modal .as-modal__title { top: 4px; }
+  .as-hud-frame--modal .as-modal__title::before { inset: -4px -20px; }
+  .as-hud-frame--modal .as-modal__title::after { inset: -3px -19px; }
   .as-hud-frame--modal .as-modal__body { padding: 20px; }
   .as-hud-frame--modal .as-modal__footer { gap: 12px; }
   .as-hud-frame--modal .as-modal__footer .as-btn { min-width: 0; flex: 1; }
@@ -1578,6 +2010,38 @@ html[data-visual='normal'] .hud-panel::after {
   display: none;
 }
 
+html[data-visual='normal'] .as-card::before,
+html[data-visual='normal'] .as-table-wrap::before,
+html[data-visual='normal'] .as-dropdown__panel::before,
+html[data-visual='normal'] .as-popover__panel::before,
+html[data-visual='normal'] .as-select__dropdown::before,
+html[data-visual='normal'] .as-cascader__dropdown::before {
+  display: none;
+}
+
+html[data-visual='normal'] .as-card__head,
+html[data-visual='normal'] .as-drawer__footer,
+html[data-visual='normal'] .as-modal__footer,
+html[data-visual='normal'] .as-tabs__nav {
+  background-image: none;
+}
+
+html[data-visual='normal'] :is(
+  .as-btn,
+  .as-tag,
+  .as-input,
+  .as-input-wrap,
+  .as-textarea,
+  .as-select
+) {
+  clip-path: none;
+}
+
+html[data-visual='normal'] .as-table th:first-child,
+html[data-visual='normal'] .as-table td:first-child {
+  border-left: 0;
+}
+
 html[data-visual='normal'] .as-modal.as-hud-frame--modal {
   overflow: hidden;
   color: var(--as-text);
@@ -1585,6 +2049,40 @@ html[data-visual='normal'] .as-modal.as-hud-frame--modal {
   border: 1px solid var(--as-border-secondary);
   border-radius: 8px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+}
+
+html[data-visual='normal'] .as-drawer.as-hud-frame--drawer {
+  isolation: auto;
+  border: 0;
+  border-radius: 0;
+  box-shadow: var(--as-shadow);
+}
+html[data-visual='normal'] .as-drawer.as-hud-frame--drawer::after,
+html[data-visual='normal'] .as-hud-drawer__chrome,
+html[data-visual='normal'] .as-hud-frame--drawer .as-drawer__title::before,
+html[data-visual='normal'] .as-hud-frame--drawer .as-drawer__title::after {
+  display: none;
+}
+html[data-visual='normal'] .as-hud-frame--drawer .as-drawer__header {
+  min-height: 56px;
+  padding: 12px 20px;
+  background: transparent;
+  border-color: var(--as-border-secondary);
+}
+html[data-visual='normal'] .as-hud-frame--drawer .as-drawer__title {
+  position: relative;
+  top: auto;
+  left: auto;
+  display: block;
+  flex: 1;
+  height: auto;
+  max-width: none;
+  margin-right: 0;
+  padding: 0;
+  border: 0;
+  color: var(--as-text);
+  letter-spacing: 0;
+  text-shadow: none;
 }
 
 html[data-visual='normal'] .as-modal.as-hud-frame--modal::before,
@@ -1599,16 +2097,32 @@ html[data-visual='normal'] .as-hud-frame--modal .as-modal__head {
   justify-content: flex-start;
   min-height: 52px;
   padding: 14px 20px;
+  overflow: visible;
   background: transparent;
   border-color: var(--as-border-secondary);
 }
 
 html[data-visual='normal'] .as-hud-frame--modal .as-modal__title {
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+  width: auto;
+  height: auto;
+  max-width: none;
+  padding: 0;
   color: var(--as-text);
   font-size: 16px;
   letter-spacing: 0;
   text-align: left;
   text-shadow: none;
+}
+html[data-visual='normal'] .as-hud-frame--modal .as-modal__title-text {
+  padding: 0;
+  overflow: visible;
+  line-height: inherit;
+  text-overflow: clip;
+  white-space: normal;
 }
 
 html[data-visual='normal'] .as-hud-frame--modal .as-modal__close {

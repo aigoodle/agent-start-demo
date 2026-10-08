@@ -249,13 +249,15 @@ html[data-theme='light'] .hud-nav-item.active .hud-nav-icon {
   // 模态窗口边线颜色跟随主题色（使用更高特异性）
   const modalOverrideDark = `
 html .as-modal.as-hud-frame--modal,
-html.as-modal.as-hud-frame--modal {
+html.as-modal.as-hud-frame--modal,
+html .as-drawer.as-hud-frame--drawer {
   --as-hud-modal-line: hsla(${h.toFixed(1)}, 90%, 60%, 0.72) !important;
   --as-hud-modal-hot: hsla(${h.toFixed(1)}, 95%, 72%, 0.98) !important;
   --as-hud-modal-glow: hsla(${h.toFixed(1)}, 90%, 60%, 0.48) !important;
 }`
   const modalOverrideLight = `
-html[data-theme='light'] .as-modal.as-hud-frame--modal {
+html[data-theme='light'] .as-modal.as-hud-frame--modal,
+html[data-theme='light'] .as-drawer.as-hud-frame--drawer {
   --as-hud-modal-line: hsla(${h.toFixed(1)}, 75%, 42%, 0.55) !important;
   --as-hud-modal-hot: hsla(${h.toFixed(1)}, 80%, 50%, 0.75) !important;
   --as-hud-modal-glow: hsla(${h.toFixed(1)}, 75%, 42%, 0.3) !important;
